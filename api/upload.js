@@ -3,7 +3,7 @@ const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 
 const storage = new Storage({
-    keyFilename: path.join(__dirname, '../config/service-account-key.json'), // Adjust the path as necessary
+    keyFilename: path.join(__dirname, '../config/veezopro-gc.json'), // Adjust the path as necessary
 });
 
 // Replace with your bucket name
