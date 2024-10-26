@@ -1,36 +1,58 @@
 const multer = require('multer');
+const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 
-// Set up multer for disk storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadPath = path.join(__dirname, '..', 'public', 'file'); // Save to /public/file
-        cb(null, uploadPath);
-    },
-    filename: function (req, file, cb) {
-        const fileId = generateRandomId(); // Generate a unique ID
-        const fileExtension = path.extname(file.originalname);
-        cb(null, fileId + fileExtension); // e.g., '12nr13.mp4'
-    }
-});
+// Create a new Google Cloud Storage client
+const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+const storage = new Storage({ credentials: serviceAccount });
 
-const upload = multer({ storage: storage });
+// Replace with your bucket name
+const bucketName = 'veezopro_videos';
+
+// Set up multer to use memory storage
+const upload = multer({ storage: multer.memoryStorage() });
 
 export default function handler(req, res) {
     if (req.method === 'POST') {
-        upload.single('file')(req, res, function (err) {
+        upload.single('file')(req, res, async function (err) {
             if (err) return res.status(500).json({ error: err.message });
 
             if (!req.file) {
                 return res.status(400).json({ error: 'No file uploaded' });
             }
 
-            // Extract the ID from the uploaded file name
-            const fileId = path.parse(req.file.filename).name; // Get the ID from filename without extension
-            const fileExtension = path.extname(req.file.originalname);
-            const fileUrl = `https://veezo.pro/v_id=${fileId}`; // Adjust this URL as needed
+            try {
+                // Generate a unique filename
+                const fileId = generateRandomId();
+                const fileExtension = path.extname(req.file.originalname);
+                const filename = `${fileId}${fileExtension}`;
 
-            res.status(200).json({ id: fileId, url: fileUrl });
+                // Upload file to Google Cloud Storage
+                const bucketFile = storage.bucket(bucketName).file(filename);
+                const stream = bucketFile.createWriteStream({
+                    metadata: {
+                        contentType: req.file.mimetype, // Set the correct content type
+                    },
+                });
+
+                // Pipe the file stream to the bucket
+                stream.on('error', (uploadErr) => {
+                    console.error('Error uploading file:', uploadErr);
+                    res.status(500).send('Error uploading file');
+                });
+
+                stream.on('finish', () => {
+                    console.log('File uploaded successfully');
+                    const fileUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+                    res.status(200).json({ id: fileId, url: fileUrl });
+                });
+
+                // Pipe the uploaded file buffer (or stream) to the GCS stream
+                stream.end(req.file.buffer);
+            } catch (error) {
+                console.error('Upload error:', error);
+                res.status(500).send('Error uploading file');
+            }
         });
     } else {
         res.status(405).json({ message: 'Method Not Allowed' });
