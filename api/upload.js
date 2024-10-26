@@ -3,8 +3,14 @@ const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 
 // Create a new Google Cloud Storage client
-const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-const storage = new Storage({ credentials: serviceAccount });
+const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
+
+const storage = new Storage({
+    credentials: {
+        client_email: serviceAccount.client_email,
+        private_key: serviceAccount.private_key.replace(/\\n/g, '\n'), // Correctly handle newlines
+    },
+});
 
 // Replace with your bucket name
 const bucketName = 'veezopro_videos';
