@@ -29,10 +29,16 @@ app.post('/api/upload', upload.single('file'), (req, res, next) => {
   res.status(200).json({ id: fileId });
 });
 
+// app.get('/v', (req, res) => {
+//   const videoId = req.query.id;
+//   res.sendFile(path.join(__dirname, 'public', 'video.html'));
+// });
+
 app.get('/v', (req, res) => {
   const videoId = req.query.id;
-  res.sendFile(path.join(__dirname, 'public', 'video.html'));
+  res.redirect(`/file/${videoId}.mp4`);
 });
+
 
 app.use((req, res, next) => {
   res.status(404).send("Page not found");
