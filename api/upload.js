@@ -2,28 +2,8 @@ const multer = require('multer');
 const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 
-// Create a new Google Cloud Storage client
-const googleServiceAccount = process.env.GOOGLE_SERVICE_ACCOUNT;
-
-if (!googleServiceAccount) {
-    console.error('GOOGLE_SERVICE_ACCOUNT is undefined');
-    throw new Error('GOOGLE_SERVICE_ACCOUNT is not set in the environment variables');
-}
-
-try {
-    const serviceAccount = JSON.parse(googleServiceAccount.replace(/\\n/g, '\n')); // Handle newlines correctly
-    console.log('Service account parsed successfully:', serviceAccount);
-} catch (error) {
-    console.error('Error parsing GOOGLE_SERVICE_ACCOUNT:', error);
-    throw error; // Rethrow or handle the error as appropriate
-}
-const serviceAccount = JSON.parse(googleServiceAccount.replace(/\\n/g, '\n')); // Handle newlines correctly
-
 const storage = new Storage({
-    credentials: {
-        client_email: serviceAccount.client_email,
-        private_key: serviceAccount.private_key.replace(/\\n/g, '\n'), // Correctly handle newlines
-    },
+    keyFilename: path.join(__dirname, '../config/service-account-key.json'), // Adjust the path as necessary
 });
 
 // Replace with your bucket name
