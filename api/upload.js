@@ -10,6 +10,13 @@ if (!googleServiceAccount) {
     throw new Error('GOOGLE_SERVICE_ACCOUNT is not set in the environment variables');
 }
 
+try {
+    const serviceAccount = JSON.parse(googleServiceAccount.replace(/\\n/g, '\n')); // Handle newlines correctly
+    console.log('Service account parsed successfully:', serviceAccount);
+} catch (error) {
+    console.error('Error parsing GOOGLE_SERVICE_ACCOUNT:', error);
+    throw error; // Rethrow or handle the error as appropriate
+}
 const serviceAccount = JSON.parse(googleServiceAccount.replace(/\\n/g, '\n')); // Handle newlines correctly
 
 const storage = new Storage({
