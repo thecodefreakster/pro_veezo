@@ -1,4 +1,10 @@
 {
+    "functions": {
+      "api/upload.js": {
+        "memory": 512,
+        "maxDuration": 10
+      }
+    },
     "rewrites": [
       { "source": "/", "destination": "/public/index.html" },
       { "source": "/v", "destination": "/public/video.html" },
