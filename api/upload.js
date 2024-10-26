@@ -3,7 +3,14 @@ const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 
 // Create a new Google Cloud Storage client
-const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
+const googleServiceAccount = process.env.GOOGLE_SERVICE_ACCOUNT;
+
+if (!googleServiceAccount) {
+    console.error('GOOGLE_SERVICE_ACCOUNT is undefined');
+    throw new Error('GOOGLE_SERVICE_ACCOUNT is not set in the environment variables');
+}
+
+const serviceAccount = JSON.parse(googleServiceAccount.replace(/\\n/g, '\n')); // Handle newlines correctly
 
 const storage = new Storage({
     credentials: {
