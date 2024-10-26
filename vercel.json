@@ -7,7 +7,7 @@
     },
     "rewrites": [
       { "source": "/", "destination": "/public/index.html" },
-      { "source": "/v", "destination": "/public/file/:id.mp4" },
+      { "source": "/v/:id", "destination": "/public/file/:id.mp4" },
       { "source": "/api/upload", "destination": "/api/upload.js" }
     ]
   }
