@@ -2,8 +2,11 @@ const multer = require('multer');
 const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 
+const serviceAccount = require(path.join(__dirname, '../config/service-account-key.json'));
+
+// Create a storage client using the service account credentials
 const storage = new Storage({
-    keyFilename: path.join(__dirname, '../config/veezopro-gc.json'), // Adjust the path as necessary
+    credentials: serviceAccount,
 });
 
 // Replace with your bucket name
