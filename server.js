@@ -34,9 +34,17 @@ app.post('/api/upload', upload.single('file'), (req, res, next) => {
 //   res.sendFile(path.join(__dirname, 'public', 'video.html'));
 // });
 
-app.get('/v', (req, res) => {
-  const videoId = req.query.id;
-  res.redirect(`/file/${videoId}.mp4`);
+app.get('/v_id=:id', (req, res) => {
+  const fileId = req.params.id; // Get the ID from the URL
+  const filePath = path.join(__dirname, 'public', 'file', `${fileId}.*`); // Match any file extension
+
+  // Send the file
+  res.sendFile(filePath, (err) => {
+      if (err) {
+          console.error('Error sending file:', err);
+          res.status(404).send('File not found.');
+      }
+  });
 });
 
 
