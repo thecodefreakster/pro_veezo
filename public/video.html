@@ -71,6 +71,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
     <script src="./index.js"></script>
     <script>
+        function getVideoIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+    
+        function loadVideo(videoId) {
+            const video = document.getElementById("previewVideo");
+            const gcsUrl = `https://storage.googleapis.com/veezopro_videos/${videoId}.mov`;
+            console.log("GCS Video URL:", gcsUrl);
+            video.src = gcsUrl;
+            video.load();
+        }
+    
+        document.addEventListener("DOMContentLoaded", function () {
+            const videoId = getVideoIdFromUrl();
+            if (videoId) {
+                loadVideo(videoId);
+            } else {
+                console.error("No video ID found in URL");
+            }
+        });
+    </script>
+    <!-- <script>
         function toggleMobileNavbar() {
             var x = document.getElementById("mobile-menu");
             if (x.style.display === "flex") {
@@ -91,11 +114,10 @@
             video.load();
         }
 
-
         $(document).ready(function() {
             var videoId = getVideoIdFromUrl();
             loadVideo(videoId);
         });
-    </script>
+    </script> -->
 </body>
 </html>
