@@ -34,17 +34,40 @@ app.post('/api/upload', upload.single('file'), (req, res, next) => {
 //   res.sendFile(path.join(__dirname, 'public', 'video.html'));
 // });
 
-app.get('/v_id=:id', (req, res) => {
-  const fileId = req.params.id; // Get the ID from the URL
-  const filePath = path.join(__dirname, 'public', 'file', `${fileId}.*`); // Match any file extension
+// app.get('/v_id=:id', (req, res) => {
+//   const fileId = req.params.id; // Get the ID from the URL
+//   const filePath = path.join(__dirname, 'public', 'file', `${fileId}.*`); // Match any file extension
 
-  // Send the file
-  res.sendFile(filePath, (err) => {
-      if (err) {
-          console.error('Error sending file:', err);
-          res.status(404).send('File not found.');
-      }
-  });
+//   // Send the file
+//   res.sendFile(filePath, (err) => {
+//       if (err) {
+//           console.error('Error sending file:', err);
+//           res.status(404).send('File not found.');
+//       }
+//   });
+// });
+
+app.get('/v', async (req, res) => {
+  const fileId = req.query.id; // Get the file ID from the query parameter
+
+  if (!fileId) {
+    return res.status(400).send('File ID is required');
+  }
+
+  const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}.mov`;
+
+  try {
+    const response = await axios.get(gcsUrl, { responseType: 'stream' });
+
+    // Set the correct content type for video
+    res.setHeader('Content-Type', response.headers['content-type']);
+
+    // Pipe the video stream to the response
+    response.data.pipe(res);
+  } catch (error) {
+    console.error('Error fetching video:', error);
+    res.status(404).send('Video not found');
+  }
 });
 
 
