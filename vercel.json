@@ -7,7 +7,7 @@
     },
     "rewrites": [
       { "source": "/", "destination": "/public/index.html" },
-      { "source": "/v/:id", "destination": "/public/file/:id.mp4" },
+      { "source": "/v/:id", "destination": "https://storage.googleapis.com/veezopro_videos/:id.mov" },
       { "source": "/api/upload", "destination": "/api/upload.js" }
     ]
   }
