@@ -87,9 +87,10 @@
 
         function loadVideo(videoId) {
             var video = document.getElementById("previewVideo");
-            video.src = "/file/" + videoId + ".mp4";
+            video.src = "https://storage.googleapis.com/veezopro_videos/" + videoId + ".mov";
             video.load();
         }
+
 
         $(document).ready(function() {
             var videoId = getVideoIdFromUrl();
