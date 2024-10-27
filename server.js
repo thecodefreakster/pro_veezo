@@ -98,41 +98,116 @@
 //     return id;
 // }
 
+//----------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+// const express = require('express');
+// const multer = require('multer');
+// const axios = require('axios');
+// const path = require('path');
+
+// const app = express();
+// const PORT = process.env.PORT || 3000;
+// const bucketName = 'veezopro_videos';
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, path.join(__dirname, 'public', 'file'));
+//   },
+//   filename: function (req, file, cb) {
+//     const videoId = generateRandomId();
+//     const fileExtension = path.extname(file.originalname);
+//     cb(null, videoId + fileExtension);
+//   }
+// });
+
+// const upload = multer({ storage: storage });
+// app.use(express.static('public'));
+
+// app.post('/api/upload', upload.single('file'), (req, res) => {
+//   if (!req.file) {
+//     return res.status(400).json({ error: 'No files uploaded' });
+//   }
+
+//   const fileUrl = `${req.protocol}://${req.get('host')}/file/${req.file.filename}`;
+//   const fileId = req.file.filename.split('.')[0];
+//   res.status(200).json({ id: fileId });
+// });
+
+// // Update this route to handle fetching video from GCS
+// app.get('/v', async (req, res) => {
+//   const fileId = req.query.id; // Get the file ID from the query parameter
+
+//   if (!fileId) {
+//     return res.status(400).send('File ID is required.');
+//   }
+
+//   // Construct the GCS public URL
+//   const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}.mov`;
+//   console.log("Google URL:", gcsUrl);
+
+//   try {
+//     // Make a request to GCS and stream the video to the client
+//     const response = await axios.get(gcsUrl, { responseType: 'stream' });
+
+//     // Set the correct content type based on the GCS response
+//     res.setHeader('Content-Type', response.headers['content-type']);
+    
+//     // Pipe the GCS stream directly to the response
+//     response.data.pipe(res);
+//   } catch (error) {
+//     console.error('Error fetching video:', error.message);
+//     res.status(404).send('Video not found.');
+//   }
+// });
+
+// app.use((req, res, next) => {
+//   res.status(404).send("Page not found");
+// });
+
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(500).send('An error occurred on the server');
+// });
+
+// app.listen(PORT, () => {
+//   console.log(`The server is running on the port ${PORT}`);
+// });
+
+// function generateRandomId() {
+//     let id = "";
+//     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+//     const charactersLength = characters.length;
+//     for (let i = 0; i < 6; i++) {
+//         id += characters.charAt(Math.floor(Math.random() * charactersLength));
+//     }
+//     return id;
+// }
+
+
+
+
+
+
+
+
+
 
 const express = require('express');
-const multer = require('multer');
 const axios = require('axios');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const bucketName = 'veezopro_videos';
+const bucketName = 'veezopro_videos'; // Name of your GCS bucket
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, 'public', 'file'));
-  },
-  filename: function (req, file, cb) {
-    const videoId = generateRandomId();
-    const fileExtension = path.extname(file.originalname);
-    cb(null, videoId + fileExtension);
-  }
-});
-
-const upload = multer({ storage: storage });
-app.use(express.static('public'));
-
-app.post('/api/upload', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No files uploaded' });
-  }
-
-  const fileUrl = `${req.protocol}://${req.get('host')}/file/${req.file.filename}`;
-  const fileId = req.file.filename.split('.')[0];
-  res.status(200).json({ id: fileId });
-});
-
-// Update this route to handle fetching video from GCS
 app.get('/v', async (req, res) => {
   const fileId = req.query.id; // Get the file ID from the query parameter
 
@@ -143,14 +218,14 @@ app.get('/v', async (req, res) => {
   // Construct the GCS public URL
   const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}.mov`;
   console.log("Google URL:", gcsUrl);
-
+  
   try {
     // Make a request to GCS and stream the video to the client
     const response = await axios.get(gcsUrl, { responseType: 'stream' });
 
     // Set the correct content type based on the GCS response
     res.setHeader('Content-Type', response.headers['content-type']);
-    
+
     // Pipe the GCS stream directly to the response
     response.data.pipe(res);
   } catch (error) {
@@ -159,10 +234,12 @@ app.get('/v', async (req, res) => {
   }
 });
 
-app.use((req, res, next) => {
+// Handle 404 for all other routes
+app.use((req, res) => {
   res.status(404).send("Page not found");
 });
 
+// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('An error occurred on the server');
@@ -171,13 +248,3 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`The server is running on the port ${PORT}`);
 });
-
-function generateRandomId() {
-    let id = "";
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const charactersLength = characters.length;
-    for (let i = 0; i < 6; i++) {
-        id += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return id;
-}
