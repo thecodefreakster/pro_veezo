@@ -57,7 +57,8 @@ app.get('/v', async (req, res) => {
   }
 
   // Construct the GCS public URL
-  const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}.mov`;
+  //const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}.mov`;
+  const gcsURL = `https://storage.cloud.google.com/veezopro_videos/k50pok.mov`
   console.log("googleurl--", gcsUrl);
   try {
     // Make a request to GCS and stream the video to the client
