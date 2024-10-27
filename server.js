@@ -208,31 +208,52 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const bucketName = 'veezopro_videos'; // Name of your GCS bucket
 
+// app.get('/v', async (req, res) => {
+//   const fileId = req.query.id; // Get the file ID from the query parameter
+
+//   if (!fileId) {
+//     return res.status(400).send('File ID is required.');
+//   }
+
+//   // Construct the GCS public URL
+//   const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}.mov`;
+//   console.log("Google URL:", gcsUrl);
+  
+//   try {
+//     // Make a request to GCS and stream the video to the client
+//     const response = await axios.get(gcsUrl, { responseType: 'stream' });
+
+//     // Set the correct content type based on the GCS response
+//     res.setHeader('Content-Type', response.headers['content-type']);
+
+//     // Pipe the GCS stream directly to the response
+//     response.data.pipe(res);
+//   } catch (error) {
+//     console.error('Error fetching video:', error.message);
+//     res.status(404).send('Video not found.');
+//   }
+// });
+
 app.get('/v', async (req, res) => {
-  const fileId = req.query.id; // Get the file ID from the query parameter
+  const fileId = req.query.id;
 
   if (!fileId) {
-    return res.status(400).send('File ID is required.');
+      return res.status(400).send('File ID is required.');
   }
 
-  // Construct the GCS public URL
   const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}.mov`;
   console.log("Google URL:", gcsUrl);
-  
+
   try {
-    // Make a request to GCS and stream the video to the client
-    const response = await axios.get(gcsUrl, { responseType: 'stream' });
-
-    // Set the correct content type based on the GCS response
-    res.setHeader('Content-Type', response.headers['content-type']);
-
-    // Pipe the GCS stream directly to the response
-    response.data.pipe(res);
+      const response = await axios.get(gcsUrl, { responseType: 'stream' });
+      res.setHeader('Content-Type', response.headers['content-type']);
+      response.data.pipe(res);
   } catch (error) {
-    console.error('Error fetching video:', error.message);
-    res.status(404).send('Video not found.');
+      console.error('Error fetching video:', error.message);
+      res.status(404).send('Video not found.');
   }
 });
+
 
 // Handle 404 for all other routes
 app.use((req, res) => {
