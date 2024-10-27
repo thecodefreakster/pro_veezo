@@ -2,7 +2,7 @@ const multer = require('multer');
 const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 
-const serviceAccount = require(path.join(__dirname, '../config/service-account-key.json'));
+const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY);
 
 // Create a storage client using the service account credentials
 const storage = new Storage({
