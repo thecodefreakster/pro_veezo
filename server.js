@@ -58,7 +58,7 @@ app.get('/v', async (req, res) => {
 
   // Construct the GCS public URL
   const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}.mov`;
-
+  console.log("googleurl--", gcsUrl);
   try {
     // Make a request to GCS and stream the video to the client
     const response = await axios.get(gcsUrl, { responseType: 'stream' });
