@@ -55,7 +55,7 @@ app.get('/v', async (req, res) => {
     return res.status(400).send('File ID is required');
   }
 
-  const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}.mov`;
+  const gcsUrl = `https://storage.googleapis.com/veezopro_videos/${fileId}.mov`;
 
   try {
     const response = await axios.get(gcsUrl, { responseType: 'stream' });
