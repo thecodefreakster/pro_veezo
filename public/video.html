@@ -131,7 +131,7 @@
 
     function loadVideo(videoId) {
         const video = document.getElementById("previewVideo");
-        const videoUrl = `/v?id=${videoId}`;
+        const videoUrl = `https://storage.googleapis.com/veezopro_videos/${videoId}.mov`;
         console.log("Video URL:", videoUrl);
 
         video.src = videoUrl;
