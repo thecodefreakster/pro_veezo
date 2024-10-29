@@ -271,68 +271,36 @@
 
 
 
-
-
-
 const express = require('express');
-const { Storage } = require('@google-cloud/storage');
-const path = require('path');
-
+const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
-const bucketName = 'veezopro_videos'; // GCS bucket name
 
-// Initialize Google Cloud Storage client
-const storage = new Storage();
-
-// Stream video route
+// Endpoint to handle requests
 app.get('/v', async (req, res) => {
-  const fileId = req.query.id;
+    const videoId = req.query.id;
 
-  if (!fileId) {
-    return res.status(400).send('File ID is required.');
-  }
+    // Construct the URL to fetch the video from Google Cloud Storage
+    const gcsUrl = `https://storage.googleapis.com/veezopro_videos/${videoId}.mov`;
 
-  const gcsFile = storage.bucket(bucketName).file(`${fileId}.mov`);
+    try {
+        // Fetch the video content from GCS
+        const response = await axios.get(gcsUrl, {
+            responseType: 'stream',
+        });
 
-  try {
-    // Check if the file exists in GCS
-    const [exists] = await gcsFile.exists();
-    if (!exists) {
-      return res.status(404).send('Video not found.');
+        // Set the appropriate content type for the video
+        res.set('Content-Type', 'video/quicktime'); // or 'video/mp4' if your video is in MP4 format
+
+        // Pipe the GCS response to the client
+        response.data.pipe(res);
+    } catch (error) {
+        console.error('Error fetching video:', error);
+        res.status(404).send('Video not found');
     }
-
-    // Set headers for video streaming
-    res.setHeader('Content-Type', 'video/mp4');
-    res.setHeader('Accept-Ranges', 'bytes');
-
-    // Stream the video from GCS to the response
-    gcsFile.createReadStream()
-      .on('error', (err) => {
-        console.error('Error streaming video:', err);
-        res.status(500).send('Error streaming video.');
-      })
-      .pipe(res)
-      .on('finish', () => {
-        console.log(`Streamed video ${fileId}.mov`);
-      });
-  } catch (error) {
-    console.error('Error fetching video:', error.message);
-    res.status(500).send('Server error.');
-  }
 });
 
-// Handle 404 for all other routes
-app.use((req, res) => {
-  res.status(404).send("Page not found");
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('An error occurred on the server');
-});
-
+// Start the server
 app.listen(PORT, () => {
-  console.log(`The server is running on port ${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
