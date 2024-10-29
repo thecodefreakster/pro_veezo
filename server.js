@@ -200,13 +200,33 @@
 
 
 
-const express = require('express');
-const axios = require('axios');
-const path = require('path');
+// const express = require('express');
+// const axios = require('axios');
+// const path = require('path');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-const bucketName = 'veezopro_videos'; // Name of your GCS bucket
+// const app = express();
+// const PORT = process.env.PORT || 3000;
+// const bucketName = 'veezopro_videos'; // Name of your GCS bucket
+
+// // app.get('/v', async (req, res) => {
+// //   const fileId = req.query.id;
+
+// //   if (!fileId) {
+// //       return res.status(400).send('File ID is required.');
+// //   }
+
+// //   const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}.mov`;
+// //   console.log("Google URL:", gcsUrl);
+
+// //   try {
+// //       const response = await axios.get(gcsUrl, { responseType: 'stream' });
+// //       res.setHeader('Content-Type', response.headers['content-type']);
+// //       response.data.pipe(res);
+// //   } catch (error) {
+// //       console.error('Error fetching video:', error.message);
+// //       res.status(404).send('Video not found.');
+// //   }
+// // });
 
 // app.get('/v', async (req, res) => {
 //   const fileId = req.query.id;
@@ -216,39 +236,91 @@ const bucketName = 'veezopro_videos'; // Name of your GCS bucket
 //   }
 
 //   const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}.mov`;
-//   console.log("Google URL:", gcsUrl);
 
 //   try {
-//       const response = await axios.get(gcsUrl, { responseType: 'stream' });
+//       const response = await axios.get(gcsUrl, { responseType: 'arraybuffer' });
+
 //       res.setHeader('Content-Type', response.headers['content-type']);
-//       response.data.pipe(res);
+//       res.setHeader('Content-Length', response.data.length);
+//       res.status(200).send(response.data);
 //   } catch (error) {
 //       console.error('Error fetching video:', error.message);
 //       res.status(404).send('Video not found.');
 //   }
 // });
 
+
+// // Handle 404 for all other routes
+// app.use((req, res) => {
+//   res.status(404).send("Page not found");
+// });
+
+// // Error handling middleware
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(500).send('An error occurred on the server');
+// });
+
+// app.listen(PORT, () => {
+//   console.log(`The server is running on the port ${PORT}`);
+// });
+
+
+
+
+
+
+
+
+
+
+const express = require('express');
+const { Storage } = require('@google-cloud/storage');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const bucketName = 'veezopro_videos'; // GCS bucket name
+
+// Initialize Google Cloud Storage client
+const storage = new Storage();
+
+// Stream video route
 app.get('/v', async (req, res) => {
   const fileId = req.query.id;
 
   if (!fileId) {
-      return res.status(400).send('File ID is required.');
+    return res.status(400).send('File ID is required.');
   }
 
-  const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}.mov`;
+  const gcsFile = storage.bucket(bucketName).file(`${fileId}.mov`);
 
   try {
-      const response = await axios.get(gcsUrl, { responseType: 'arraybuffer' });
+    // Check if the file exists in GCS
+    const [exists] = await gcsFile.exists();
+    if (!exists) {
+      return res.status(404).send('Video not found.');
+    }
 
-      res.setHeader('Content-Type', response.headers['content-type']);
-      res.setHeader('Content-Length', response.data.length);
-      res.status(200).send(response.data);
+    // Set headers for video streaming
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Accept-Ranges', 'bytes');
+
+    // Stream the video from GCS to the response
+    gcsFile.createReadStream()
+      .on('error', (err) => {
+        console.error('Error streaming video:', err);
+        res.status(500).send('Error streaming video.');
+      })
+      .pipe(res)
+      .on('finish', () => {
+        console.log(`Streamed video ${fileId}.mov`);
+      });
   } catch (error) {
-      console.error('Error fetching video:', error.message);
-      res.status(404).send('Video not found.');
+    console.error('Error fetching video:', error.message);
+    res.status(500).send('Server error.');
   }
 });
-
 
 // Handle 404 for all other routes
 app.use((req, res) => {
@@ -262,5 +334,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`The server is running on the port ${PORT}`);
+  console.log(`The server is running on port ${PORT}`);
 });
