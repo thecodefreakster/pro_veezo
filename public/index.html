@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <title>Videy - free and simple video hosting</title>
@@ -91,6 +91,90 @@
             } else {
                 x.style.display = "flex";
             }
+        }
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Videy - free and simple video hosting</title>
+    <meta name="description" content="Videy is the platform for free and simple video hosting.">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;300;400;600&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="./style.css">
+</head>
+<body>
+    <!-- ... other content ... -->
+
+    <div class="main-area">
+        <div class="headline">
+            Free and simple video hosting
+        </div>
+        <div class="description">
+            Just select or drop a file.
+        </div>
+        <div class="headline-uploading">
+            Uploading...
+        </div>
+        <div class="description-uploading">
+            0% complete.
+        </div>
+        <div class="upload-button" onclick="handleFileUpload();">
+            Browse
+        </div>
+    </div>
+
+    <footer>
+        <p>© veezo.pro. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" crossorigin="anonymous"></script>
+    <script>
+        function handleFileUpload() {
+            // Simulate a file selection (you might want to trigger a file input click event here)
+            const fileInput = document.getElementById('selectedFile');
+            fileInput.click();
+
+            fileInput.onchange = async function () {
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                // Show uploading feedback
+                document.querySelector('.headline-uploading').style.display = 'block';
+                document.querySelector('.description-uploading').style.display = 'block';
+
+                try {
+                    const response = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error('Upload failed');
+
+                    // Assuming your server responds with JSON and includes the video ID
+                    const result = await response.json();
+                    const videoId = result.id;
+
+                    // Redirect to the video page with the new ID
+                    window.location.href = `/video/${videoId}`;
+                } catch (error) {
+                    console.error('Upload failed:', error);
+                    alert('Failed to upload the video.');
+                }
+            };
+        }
+
+        function toggleMobileNavbar() {
+            const menu = document.getElementById("mobile-menu");
+            menu.style.display = menu.style.display === "flex" ? "none" : "flex";
         }
     </script>
 </body>
