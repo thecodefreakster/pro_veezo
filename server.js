@@ -290,7 +290,7 @@ app.get('/v', async (req, res) => {
         });
 
         // Set the appropriate content type for the video
-        res.set('Content-Type', 'video/quicktime'); // or 'video/mp4' if your video is in MP4 format
+        res.set('Content-Type', 'video/quicktime');// or 'video/mp4' if your video is in MP4 format
 
         // Pipe the GCS response to the client
         response.data.pipe(res);

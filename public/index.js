@@ -76,7 +76,9 @@ function upload() {
             contentType: false,
             processData: false,
             success: function (result) {
-                window.location.href = "/v?id=" + result.id;
+                // window.location.href = "/v?id=" + result.id;
+                    window.location.href = `/video/${result.id}`;
+                }
             },
             error: function () {
                 $(".headline").show();
