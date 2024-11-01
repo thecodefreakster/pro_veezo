@@ -96,7 +96,7 @@ app.get('/v_', (req, res) => {
   res.redirect(gcsUrl);
 });
 
-// Route to stream video from Google Cloud Storage
+// Route to stream video from Google Cloud Storages
 // app.get('/video/:videoId', async (req, res) => {
 //     const videoId = req.params.videoId; // Capture the video ID from the URL
 //     const bucketName = 'veezopro_videos'; // Your GCS bucket name
