@@ -125,7 +125,7 @@
  -->
 
 
-<!-- 
+
  <!DOCTYPE html>
  <html>
  <head>
@@ -198,15 +198,12 @@
          }
  
          function loadVideo(videoId) {
-             if (videoId) {
-                 const video = document.getElementById("previewVideo");
-                 video.src = `https://storage.googleapis.com/veezopro_videos/${videoId}.mov`;
-                 video.load();
-                 console.log(`Loading video from ${video.src}`);
-             } else {
-                 console.error("Video ID is missing from the URL.");
-             }
-         }
+            var video = document.getElementById("previewVideo");
+            // Assuming your GCS bucket name is veezopro_videos and videoId is the file name
+            video.src = `https://storage.googleapis.com/veezopro_videos/${videoId}.mov`;
+            video.load();
+        }
+
  
          $(document).ready(function() {
              const videoId = getVideoIdFromUrl();
@@ -215,49 +212,4 @@
      </script>
  </body>
  </html> 
-  -->
-
-  <!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Video Upload</title>
-</head>
-<body>
-    <input type="file" id="fileInput" accept="video/*">
-    <video controls id="previewVideo" width="500"></video>
-
-    <script>
-        async function handleFileChange(event) {
-            event.preventDefault();
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // Prepare form data to send file to the server
-            const formData = new FormData();
-            formData.append('file', file);
-
-            try {
-                // Upload file to the server
-                const response = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                if (!response.ok) throw new Error('File upload failed');
-
-                // Parse the response to get the video URL
-                const data = await response.json();
-                const videoUrl = data.videoUrl;
-
-                // Update video element and URL
-                document.getElementById('previewVideo').src = videoUrl;
-                console.log('Uploaded video available at:', videoUrl);
-            } catch (error) {
-                console.error('Upload error:', error);
-            }
-        }
-
-        document.getElementById('fileInput').addEventListener('change', handleFileChange);
-    </script>
-</body>
-</html>
+ 

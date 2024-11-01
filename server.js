@@ -55,22 +55,26 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
 });
 
 // v_id endpoint to serve the video
-app.get('/v_?id', async (req, res) => {
-  const videoId = req.query['=']; // Access the videoId from the query parameter
-  console.log('Received GET request for video ID:', videoId);
-  if (!videoId) {
-    return res.status(400).send('Video ID is required.');
-  }
+app.get('/video/:videoId', async (req, res) => {
+  const videoId = req.params.videoId; // Capture the video ID from the URL
+  const bucketName = 'veezopro_videos'; // Your GCS bucket name
+  const videoUrl = `https://storage.googleapis.com/${bucketName}/${videoId}.mov`; // Construct the GCS URL
 
-  const gcsUrl = `https://storage.googleapis.com/${bucketName}/${videoId}.mov`;
   try {
-    console.log('Fetching video from GCS:', gcsUrl);
-    const response = await axios.get(gcsUrl, { responseType: 'stream' });
-    res.setHeader('Content-Type', 'video/quicktime');
-    response.data.pipe(res);
+      // Make a request to the GCS URL to stream the video
+      const response = await axios({
+          method: 'GET',
+          url: videoUrl,
+          responseType: 'stream' // Stream the response
+      });
+
+      // Set the correct content type for video files
+      res.setHeader('Content-Type', 'video/quicktime'); // Use 'video/mp4' if the format is mp4
+      response.data.pipe(res); // Pipe the response data to the client
   } catch (error) {
-    console.error('Error fetching video:', error.message);
-    res.status(404).send('Video not found.');
+      // Handle errors (e.g., video not found)
+      console.error('Error fetching video:', error.message);
+      res.status(404).send('Video not found');
   }
 });
 
