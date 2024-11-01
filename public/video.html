@@ -125,7 +125,7 @@
  -->
 
 
-
+<!-- 
  <!DOCTYPE html>
  <html>
  <head>
@@ -215,4 +215,49 @@
      </script>
  </body>
  </html> 
- 
+  -->
+
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Video Upload</title>
+</head>
+<body>
+    <input type="file" id="fileInput" accept="video/*">
+    <video controls id="previewVideo" width="500"></video>
+
+    <script>
+        async function handleFileChange(event) {
+            event.preventDefault();
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Prepare form data to send file to the server
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // Upload file to the server
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) throw new Error('File upload failed');
+
+                // Parse the response to get the video URL
+                const data = await response.json();
+                const videoUrl = data.videoUrl;
+
+                // Update video element and URL
+                document.getElementById('previewVideo').src = videoUrl;
+                console.log('Uploaded video available at:', videoUrl);
+            } catch (error) {
+                console.error('Upload error:', error);
+            }
+        }
+
+        document.getElementById('fileInput').addEventListener('change', handleFileChange);
+    </script>
+</body>
+</html>
