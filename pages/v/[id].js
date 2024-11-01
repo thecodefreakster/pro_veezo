@@ -21,25 +21,25 @@ const VideoPage = ({ videoUrl }) => {
 };
 
 export async function getServerSideProps(context) {
-  console.log('Get----');
   const { id } = context.params;
 
-  // Construct the direct GCS URL to fetch the video
-  const videoUrl = `https://storage.googleapis.com/veezopro_videos/${id}.mov`;
+  // Construct the API URL to fetch the video from your API route
+  const apiUrl = `https://www.veezo.pro/api/${id}`;
+  let videoUrl = '';
 
-  // Optionally check if the video exists (this step is not mandatory)
-  let exists = false;
   try {
-    const response = await fetch(videoUrl);
-    exists = response.ok; // true if video exists
+    const response = await fetch(apiUrl);
+    if (response.ok) {
+      const data = await response.json();
+      videoUrl = data.url; // Adjust based on your API response structure
+    }
   } catch (error) {
     console.error('Error fetching video:', error);
   }
 
-  // Return the video URL if it exists, otherwise return an empty string
   return {
     props: {
-      videoUrl: exists ? videoUrl : '', // If the video doesn't exist, pass an empty string
+      videoUrl, // Pass the video URL to the page component
     },
   };
 }
