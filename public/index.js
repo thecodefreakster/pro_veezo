@@ -107,48 +107,13 @@ function generateId(filename) {
 //     }
 // }
 
-async function uploadFileInChunks(file) {
-    const chunkSize = 4.5 * 1024 * 1024; // 4.5 MB
-    const totalChunks = Math.ceil(file.size / chunkSize);
-    const fileName = file.name;
-
-    for (let i = 0; i < totalChunks; i++) {
-        const chunk = file.slice(i * chunkSize, (i + 1) * chunkSize);
-        const formData = new FormData();
-        formData.append('file', chunk, fileName);
-        formData.append('chunkIndex', i); // Send chunk index for server-side processing
-        formData.append('totalChunks', totalChunks); // Send total chunks count for server-side processing
-
-        // Call the upload endpoint for each chunk
-        try {
-            await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            });
-            console.log(`Uploaded chunk ${i + 1} of ${totalChunks}`);
-        } catch (error) {
-            console.error('Error uploading chunk:', error);
-            alert('Error uploading chunk. Please try again.');
-            return; // Exit if upload fails
-        }
-    }
-    alert('File uploaded successfully!');
-}
-
-
-function upload() {
+async function upload() {
     var fileInputValue = $("#selectedFile").val();
     if (fileInputValue !== "" && fileInputValue.trim() !== "") {
-        const file = fileInput.files[0];
+        const file = fileInput.files[0]; // Get the selected file
+        const fileName = file.name; // Get the file name
 
-        // Validate file size (100MB = 100 * 1024 * 1024 bytes)
-        const maxSize = 100 * 1024 * 1024; // 100MB
-        if (file.size > maxSize) {
-            alert("File size exceeds the maximum limit of 100MB.");
-            return;
-        }
-
-        var formData = new FormData($('form')[0]);
+        // Display uploading UI
         $(".headline").hide();
         $(".description").hide();
         $(".upload-button").hide();
@@ -156,46 +121,101 @@ function upload() {
         $(".description-uploading").show();
         $("#selectedFile").removeClass("clickListenerFile");
 
-        $.ajax({
-            xhr: function() {
-                var xhr = new window.XMLHttpRequest();
+        try {
+            // Step 1: Get the signed URL
+            const response = await fetch(`/api/generate-signed-url?fileName=${encodeURIComponent(fileName)}`);
+            const { url } = await response.json();
 
-                // Upload progress event
-                xhr.upload.addEventListener("progress", function(evt) {
-                    if (evt.lengthComputable) {
-                        var percentComplete = evt.loaded / evt.total;
-                        percentComplete = parseInt(percentComplete * 100);
-                        $(".description-uploading").html(percentComplete + "% complete.");
+            // Step 2: Upload the file to the signed URL
+            const uploadResponse = await fetch(url, {
+                method: 'PUT',
+                body: file,
+                headers: {
+                    'Content-Type': file.type,
+                },
+            });
 
-                        if (percentComplete === 100) {
-                            $(".description-uploading").html("Finalizing...");
-                        }
-                    }
-                }, false);
-
-                return xhr;
-            },
-            url: '/api/upload',  // This endpoint should handle the upload to GCS
-            type: 'POST',
-            context: this,
-            data: formData,
-            cache: false,
-            contentType: false,
-            processData: false,
-            success: function (result) {
-                // Redirect to the video page using the GCS URL returned from the API
+            if (uploadResponse.ok) {
+                // Handle success
+                const result = await uploadResponse.json();
                 window.location.href = `https://www.veezo.pro/v_?id=${result.id}`;
-            },
-            error: function () {
-                $(".headline").show();
-                $(".description").show();
-                $(".upload-button").show();
-                $(".headline-uploading").hide();
-                $(".description-uploading").hide();
-                alert("An error occurred during the upload. Please try again.");
+            } else {
+                throw new Error('Failed to upload file');
             }
-        });
+        } catch (error) {
+            $(".headline").show();
+            $(".description").show();
+            $(".upload-button").show();
+            $(".headline-uploading").hide();
+            $(".description-uploading").hide();
+            alert("An error occurred during the upload. Please try again.");
+        }
     } else {
         alert("Please select a file to upload.");
     }
 }
+
+
+// function upload() {
+//     var fileInputValue = $("#selectedFile").val();
+//     if (fileInputValue !== "" && fileInputValue.trim() !== "") {
+//         const file = fileInput.files[0];
+
+//         // Validate file size (100MB = 100 * 1024 * 1024 bytes)
+//         const maxSize = 100 * 1024 * 1024; // 100MB
+//         if (file.size > maxSize) {
+//             alert("File size exceeds the maximum limit of 100MB.");
+//             return;
+//         }
+
+//         var formData = new FormData($('form')[0]);
+//         $(".headline").hide();
+//         $(".description").hide();
+//         $(".upload-button").hide();
+//         $(".headline-uploading").show();
+//         $(".description-uploading").show();
+//         $("#selectedFile").removeClass("clickListenerFile");
+
+//         $.ajax({
+//             xhr: function() {
+//                 var xhr = new window.XMLHttpRequest();
+
+//                 // Upload progress event
+//                 xhr.upload.addEventListener("progress", function(evt) {
+//                     if (evt.lengthComputable) {
+//                         var percentComplete = evt.loaded / evt.total;
+//                         percentComplete = parseInt(percentComplete * 100);
+//                         $(".description-uploading").html(percentComplete + "% complete.");
+
+//                         if (percentComplete === 100) {
+//                             $(".description-uploading").html("Finalizing...");
+//                         }
+//                     }
+//                 }, false);
+
+//                 return xhr;
+//             },
+//             url: '/api/upload',  // This endpoint should handle the upload to GCS
+//             type: 'POST',
+//             context: this,
+//             data: formData,
+//             cache: false,
+//             contentType: false,
+//             processData: false,
+//             success: function (result) {
+//                 // Redirect to the video page using the GCS URL returned from the API
+//                 window.location.href = `https://www.veezo.pro/v_?id=${result.id}`;
+//             },
+//             error: function () {
+//                 $(".headline").show();
+//                 $(".description").show();
+//                 $(".upload-button").show();
+//                 $(".headline-uploading").hide();
+//                 $(".description-uploading").hide();
+//                 alert("An error occurred during the upload. Please try again.");
+//             }
+//         });
+//     } else {
+//         alert("Please select a file to upload.");
+//     }
+// }
