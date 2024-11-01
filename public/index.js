@@ -2,12 +2,13 @@ let target = document.documentElement;
 let body = document.body;
 let fileInput = document.getElementById("selectedFile");
 
-if(fileInput) {
+if (fileInput) {
     fileInput.onchange = function() {
         upload();
-    }
+    };
 }
 
+// Prevent default behavior when dragging over the target
 target.addEventListener('dragover', (e) => {
     if ($(".clickListenerFile")[0]) {
         e.preventDefault();
@@ -15,10 +16,12 @@ target.addEventListener('dragover', (e) => {
     }
 });
 
+// Remove dragging class when leaving the drop zone
 target.addEventListener('dragleave', () => {
     body.classList.remove('dragging');
 });
 
+// Handle the drop event
 target.addEventListener('drop', (e) => {
     if ($(".clickListenerFile")[0]) {
         e.preventDefault();
@@ -28,70 +31,25 @@ target.addEventListener('drop', (e) => {
     }
 });
 
+// Handle pasting files from clipboard
 window.addEventListener('paste', e => {
-    fileInput.files = e.clipboardData.files;
-    upload();
+    if (e.clipboardData.files.length > 0) {
+        fileInput.files = e.clipboardData.files;
+        upload();
+    }
 });
 
+// Click handler for triggering file selection
 function handleClick() {
-    if($(".clickListenerFile")[0]) {
+    if ($(".clickListenerFile")[0]) {
         $(".clickListenerFile").click();
     }
 }
 
-// function upload() {
-//     var fileInput = $("#selectedFile").val();
-//     if(fileInput != "" && fileInput.trim() != "") {
-//         var formData = new FormData($('form')[0]);
-//         $(".headline").hide();
-//         $(".description").hide();
-//         $(".upload-button").hide();
-//         $(".headline-uploading").show();
-//         $(".description-uploading").show();
-//         $("#selectedFile").removeClass("clickListenerFile");
-
-//         $.ajax({
-//             xhr: function() {
-//                 var xhr = new window.XMLHttpRequest();
-
-//                 xhr.upload.addEventListener("progress", function(evt) {
-//                     if (evt.lengthComputable) {
-//                         var percentComplete = evt.loaded / evt.total;
-//                         percentComplete = parseInt(percentComplete * 100);
-//                         $(".description-uploading").html(percentComplete + "% complete.");
-
-//                         if (percentComplete === 100) {
-//                             $(".description-uploading").html("Finalizing...");
-//                         }
-//                     }
-//                 }, false);
-
-//                 return xhr;
-//             },
-//             url: '/api/upload',
-//             type: 'POST',
-//             context: this,
-//             data: formData,
-//             cache: false,
-//             contentType: false,
-//             processData: false,
-//             success: function (result) {
-//                 window.location.href = "/v?id=" + result.id;
-//             },
-//             error: function () {
-//                 $(".headline").show();
-//                 $(".description").show();
-//                 $(".upload-button").show();
-//                 $(".headline-uploading").hide();
-//                 $(".description-uploading").hide();
-//             }
-//         });
-//     }
-// }
-
+// Function to handle the file upload
 function upload() {
-    var fileInput = $("#selectedFile").val();
-    if (fileInput != "" && fileInput.trim() != "") {
+    var fileInputValue = $("#selectedFile").val();
+    if (fileInputValue !== "" && fileInputValue.trim() !== "") {
         var formData = new FormData($('form')[0]);
         $(".headline").hide();
         $(".description").hide();
@@ -104,6 +62,7 @@ function upload() {
             xhr: function() {
                 var xhr = new window.XMLHttpRequest();
 
+                // Upload progress event
                 xhr.upload.addEventListener("progress", function(evt) {
                     if (evt.lengthComputable) {
                         var percentComplete = evt.loaded / evt.total;
@@ -127,7 +86,7 @@ function upload() {
             processData: false,
             success: function (result) {
                 // Redirect to the video page using the GCS URL returned from the API
-                window.location.href = `/video/${result.id}`; // Update as necessary for the dynamic route setup
+                window.location.href = `https://www.veezo.pro/v_?id=${result.id}`; // Use the correct URL format
             },
             error: function () {
                 $(".headline").show();
@@ -135,8 +94,10 @@ function upload() {
                 $(".upload-button").show();
                 $(".headline-uploading").hide();
                 $(".description-uploading").hide();
+                alert("An error occurred during the upload. Please try again.");
             }
         });
+    } else {
+        alert("Please select a file to upload.");
     }
 }
-
