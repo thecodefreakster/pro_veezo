@@ -2,13 +2,5 @@
     "rewrites": [
         { "source": "/api/(.*)", "destination": "/api/$1" },
         { "source": "/v_", "destination": "/video.html" }
-    ],
-    "functions": {
-        "api/generate-signed-url.js": {
-            "maxDuration": 10
-        },
-        "api/upload.js": {
-            "maxDuration": 10
-        }
-    }
+    ]
 }

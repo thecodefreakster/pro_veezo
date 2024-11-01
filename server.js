@@ -35,7 +35,7 @@ function generateRandomId() {
   return crypto.randomBytes(3).toString('hex');
 }
 
-app.get('/api/generate-signed-url', async (req, res) => {
+app.get('/api/gsu', async (req, res) => {
   const { fileName } = req.query; // Get the file name from the query
 
   const bucket = storage.bucket(bucketName);

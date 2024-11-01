@@ -123,7 +123,7 @@ async function upload() {
 
         try {
             // Step 1: Get the signed URL
-            const response = await fetch(`/api/generate-signed-url?fileName=${encodeURIComponent(fileName)}`);
+            const response = await fetch(`/api/gsu?fileName=${encodeURIComponent(fileName)}`);
             const { url } = await response.json();
 
             // Step 2: Upload the file to the signed URL
