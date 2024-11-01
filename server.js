@@ -80,46 +80,80 @@ function generateRandomId() {
 // });
 
 
-app.post('/api/upload', upload.single('file'), async (req, res) => {
-  const { chunkIndex, totalChunks } = req.body;
+// app.post('/api/upload', upload.single('file'), async (req, res) => {
+//   const { chunkIndex, totalChunks } = req.body;
+
+//   if (!req.file) {
+//     return res.status(400).json({ error: 'No files uploaded' });
+//   }
+
+//   const videoId = generateRandomId();
+//   const fileExtension = path.extname(req.file.originalname);
+//   const chunkFileName = `${videoId}_chunk_${chunkIndex}${fileExtension}`;
+
+//   try {
+//     // Get a signed URL for the chunk
+//     const url = await GetSignedUrl(chunkFileName);
+
+//     // Upload the chunk
+//     const response = await axios.put(url, req.file.buffer, {
+//       headers: {
+//         'Content-Type': req.file.mimetype,
+//       },
+//     });
+
+//     if (response.status !== 200) {
+//       return res.status(500).json({ error: 'Failed to upload chunk' });
+//     }
+
+//     console.log(`Chunk ${chunkIndex} uploaded successfully.`);
+
+//     // Check if all chunks are uploaded
+//     if (parseInt(chunkIndex) === totalChunks - 1) {
+//       console.log('All chunks uploaded successfully.');
+//       // Logic to handle completion (e.g., combining files, notifying user)
+//     }
+
+//     res.status(200).send({ message: `Chunk ${chunkIndex} uploaded successfully` });
+//   } catch (error) {
+//     console.error('Error uploading chunk:', error);
+//     res.status(500).send({ error: 'Failed to upload chunk' });
+//   }
+// });
+
+
+
+app.post('/api/upload', async (req, res, next) => {
+  const { videoId } = req.body;
 
   if (!req.file) {
-    return res.status(400).json({ error: 'No files uploaded' });
+      return res.status(400).json({ error: 'No files uploaded' });
   }
 
-  const videoId = generateRandomId();
-  const fileExtension = path.extname(req.file.originalname);
-  const chunkFileName = `${videoId}_chunk_${chunkIndex}${fileExtension}`;
+  const mimeType = req.file.mimetype; // Get the correct MIME type from the uploaded file
 
   try {
-    // Get a signed URL for the chunk
-    const url = await GetSignedUrl(chunkFileName);
+      const filename = `${videoId}.mp4`; // Use the video ID for naming (ensure proper extension)
+      const blob = storage.bucket(bucketName).file(filename);
 
-    // Upload the chunk
-    const response = await axios.put(url, req.file.buffer, {
-      headers: {
-        'Content-Type': req.file.mimetype,
-      },
-    });
+      const blobStream = blob.createWriteStream({
+          resumable: false,
+          contentType: mimeType, // Set content type
+      });
 
-    if (response.status !== 200) {
-      return res.status(500).json({ error: 'Failed to upload chunk' });
-    }
+      blobStream.on('error', (err) => next(err));
 
-    console.log(`Chunk ${chunkIndex} uploaded successfully.`);
+      blobStream.on('finish', () => {
+          const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+          res.status(200).json({ id: videoId, url: publicUrl }); // Send back the ID and URL
+      });
 
-    // Check if all chunks are uploaded
-    if (parseInt(chunkIndex) === totalChunks - 1) {
-      console.log('All chunks uploaded successfully.');
-      // Logic to handle completion (e.g., combining files, notifying user)
-    }
-
-    res.status(200).send({ message: `Chunk ${chunkIndex} uploaded successfully` });
+      blobStream.end(req.file.buffer); // End the stream with the buffer
   } catch (error) {
-    console.error('Error uploading chunk:', error);
-    res.status(500).send({ error: 'Failed to upload chunk' });
+      next(error);
   }
 });
+
 
 
 app.get('/v_', (req, res) => {

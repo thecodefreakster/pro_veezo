@@ -187,9 +187,6 @@ function upload() {
     var fileInput = $("#selectedFile")[0]; // Access the input element directly
     var file = fileInput.files[0]; // Get the selected file
     if (file) {
-        const chunkSize = 4 * 1024 * 1024; // 4 MB chunk size
-        const totalChunks = Math.ceil(file.size / chunkSize); // Calculate total chunks
-        let uploadedChunks = 0; // Keep track of uploaded chunks
         const videoId = generateRandomId(); // Generate the video ID once
 
         $(".headline").hide();
@@ -199,12 +196,13 @@ function upload() {
         $(".description-uploading").show();
         $("#selectedFile").removeClass("clickListenerFile");
 
-        // Function to read the file and upload it
-        const readAndUploadFile = (start, end) => {
-            const chunk = file.slice(start, end); // Get the current chunk
+        // Use FileReader to read the file as an ArrayBuffer
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            const arrayBuffer = event.target.result; // Get the result as an ArrayBuffer
 
             const formData = new FormData();
-            formData.append('file', chunk);
+            formData.append('file', new Blob([arrayBuffer], { type: file.type })); // Create a Blob from the ArrayBuffer
             formData.append('videoId', videoId); // Include the video ID
 
             $.ajax({
@@ -212,10 +210,9 @@ function upload() {
                     var xhr = new window.XMLHttpRequest();
                     xhr.upload.addEventListener("progress", function (evt) {
                         if (evt.lengthComputable) {
-                            var percentComplete = (uploadedChunks + (evt.loaded / evt.total)) / totalChunks;
-                            percentComplete = parseInt(percentComplete * 100);
-                            $(".description-uploading").html(percentComplete + "% complete.");
-
+                            var percentComplete = (evt.loaded / evt.total) * 100;
+                            $(".description-uploading").html(percentComplete.toFixed(0) + "% complete.");
+                            
                             if (percentComplete === 100) {
                                 $(".description-uploading").html("Finalizing...");
                             }
@@ -230,15 +227,8 @@ function upload() {
                 contentType: false,
                 processData: false,
                 success: function (result) {
-                    uploadedChunks++; // Increment uploaded chunks count
-                    if (uploadedChunks < totalChunks) {
-                        const nextStart = uploadedChunks * chunkSize;
-                        const nextEnd = Math.min(nextStart + chunkSize, file.size);
-                        readAndUploadFile(nextStart, nextEnd); // Upload next chunk
-                    } else {
-                        // All chunks uploaded
-                        window.location.href = `https://www.veezo.pro/v_?id=${videoId}`; // Use the generated ID
-                    }
+                    // Redirect to the video page using the GCS URL returned from the API
+                    window.location.href = `https://www.veezo.pro/v_?id=${result.id}`;
                 },
                 error: function () {
                     $(".headline").show();
@@ -251,12 +241,18 @@ function upload() {
             });
         };
 
-        // Start reading and uploading the file
-        readAndUploadFile(0, Math.min(chunkSize, file.size)); // Start with the first chunk
+        // Read the file
+        reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
     } else {
         alert("Please select a file to upload.");
     }
 }
+
+// Helper function to generate a random video ID
+function generateRandomId() {
+    return Math.random().toString(36).substr(2, 9); // Random ID generation logic
+}
+
 
 // Helper function to generate a random video ID
 function generateRandomId() {
