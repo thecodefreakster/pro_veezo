@@ -39,9 +39,59 @@ function handleClick() {
     }
 }
 
+// function upload() {
+//     var fileInput = $("#selectedFile").val();
+//     if(fileInput != "" && fileInput.trim() != "") {
+//         var formData = new FormData($('form')[0]);
+//         $(".headline").hide();
+//         $(".description").hide();
+//         $(".upload-button").hide();
+//         $(".headline-uploading").show();
+//         $(".description-uploading").show();
+//         $("#selectedFile").removeClass("clickListenerFile");
+
+//         $.ajax({
+//             xhr: function() {
+//                 var xhr = new window.XMLHttpRequest();
+
+//                 xhr.upload.addEventListener("progress", function(evt) {
+//                     if (evt.lengthComputable) {
+//                         var percentComplete = evt.loaded / evt.total;
+//                         percentComplete = parseInt(percentComplete * 100);
+//                         $(".description-uploading").html(percentComplete + "% complete.");
+
+//                         if (percentComplete === 100) {
+//                             $(".description-uploading").html("Finalizing...");
+//                         }
+//                     }
+//                 }, false);
+
+//                 return xhr;
+//             },
+//             url: '/api/upload',
+//             type: 'POST',
+//             context: this,
+//             data: formData,
+//             cache: false,
+//             contentType: false,
+//             processData: false,
+//             success: function (result) {
+//                 window.location.href = "/v?id=" + result.id;
+//             },
+//             error: function () {
+//                 $(".headline").show();
+//                 $(".description").show();
+//                 $(".upload-button").show();
+//                 $(".headline-uploading").hide();
+//                 $(".description-uploading").hide();
+//             }
+//         });
+//     }
+// }
+
 function upload() {
     var fileInput = $("#selectedFile").val();
-    if(fileInput != "" && fileInput.trim() != "") {
+    if (fileInput != "" && fileInput.trim() != "") {
         var formData = new FormData($('form')[0]);
         $(".headline").hide();
         $(".description").hide();
@@ -68,7 +118,7 @@ function upload() {
 
                 return xhr;
             },
-            url: '/api/upload',
+            url: '/api/upload',  // This endpoint should handle the upload to GCS
             type: 'POST',
             context: this,
             data: formData,
@@ -76,7 +126,8 @@ function upload() {
             contentType: false,
             processData: false,
             success: function (result) {
-                window.location.href = "/v?id=" + result.id;
+                // Redirect to the video page using the GCS URL returned from the API
+                window.location.href = `/video/${result.id}`; // Update as necessary for the dynamic route setup
             },
             error: function () {
                 $(".headline").show();
@@ -88,3 +139,4 @@ function upload() {
         });
     }
 }
+
