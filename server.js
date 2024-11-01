@@ -12,6 +12,16 @@ const PORT = process.env.PORT || 3000;
 const storage = new Storage();
 const bucketName = 'veezopro_videos'; // GCS bucket name
 
+const corsOptions = {
+  origin: corsConfig[0].origin,
+  methods: corsConfig[0].method,
+  allowedHeaders: corsConfig[0].responseHeader,
+  maxAge: corsConfig[0].maxAgeSeconds
+};
+
+// Use CORS middleware
+app.use(cors(corsOptions));
+
 // Multer setup
 const upload = multer({
   storage: multer.memoryStorage(), // Keep files in memory temporarily
