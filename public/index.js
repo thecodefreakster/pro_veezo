@@ -1,4 +1,4 @@
-import { GetSignedUrl } from './server.js';
+const { GetSignedUrl } = require('./server.js');
 
 let target = document.documentElement;
 let body = document.body;
