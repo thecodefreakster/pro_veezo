@@ -1,10 +1,25 @@
 {
     "rewrites": [
-        { "source": "/api/(.*)", "destination": "/api/$1" }, // Proxy API requests
-        { "source": "/v_", "destination": "/video" }, // Specific route for videos
-        { "source": "/(.*)", "destination": "/index.html" } // Serve SPA
+        { "source": "/api/(.*)", "destination": "/api/$1" },
+        { "source": "/(.*)", "destination": "/index.html" },
+        {
+            "rewrites": [
+                {
+                    "source": "/v_",
+                    "has": [
+                        {
+                            "type": "query",
+                            "key": "id",
+                            "value": "(.*)"
+                        }
+                    ],
+                    "destination": "/video?id=:id"
+                }
+            ]
+        }
+        
     ],
     "routes": [
-        { "src": "/v_(.*)", "dest": "/video?id=$1" } // Handles video requests with id
+        { "src": "/v_(.*)", "dest": "/video?id=$1" } 
     ]
 }
