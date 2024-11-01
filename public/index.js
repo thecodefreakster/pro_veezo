@@ -108,7 +108,7 @@ function generateId(filename) {
 // }
 
 async function uploadFileInChunks(file) {
-    const chunkSize = 4 * 1024 * 1024; // 4 MB
+    const chunkSize = 4.5 * 1024 * 1024; // 4.5 MB
     const totalChunks = Math.ceil(file.size / chunkSize);
     const fileName = file.name;
 
@@ -116,27 +116,25 @@ async function uploadFileInChunks(file) {
         const chunk = file.slice(i * chunkSize, (i + 1) * chunkSize);
         const formData = new FormData();
         formData.append('file', chunk, fileName);
-        formData.append('chunkIndex', i);
-        formData.append('totalChunks', totalChunks);
+        formData.append('chunkIndex', i); // Send chunk index for server-side processing
+        formData.append('totalChunks', totalChunks); // Send total chunks count for server-side processing
 
+        // Call the upload endpoint for each chunk
         try {
-            const response = await fetch('/api/upload', {
+            await fetch('/api/upload', {
                 method: 'POST',
                 body: formData
             });
-
-            if (!response.ok) {
-                throw new Error(`Error uploading chunk ${i + 1}: ${response.statusText}`);
-            }
             console.log(`Uploaded chunk ${i + 1} of ${totalChunks}`);
         } catch (error) {
             console.error('Error uploading chunk:', error);
             alert('Error uploading chunk. Please try again.');
-            return;
+            return; // Exit if upload fails
         }
     }
     alert('File uploaded successfully!');
 }
+
 
 function upload() {
     var fileInputValue = $("#selectedFile").val();

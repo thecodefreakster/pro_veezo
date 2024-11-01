@@ -71,6 +71,12 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
   const { chunkIndex, totalChunks } = req.body;
   const fileBuffer = req.file.buffer; // Access the file buffer
 
+  // Validate chunk size to prevent exceeding limits
+  const maxChunkSize = 4.5 * 1024 * 1024; // 4.5 MB
+  if (fileBuffer.length > maxChunkSize) {
+      return res.status(413).send({ error: 'Chunk exceeds the maximum size of 4.5 MB' });
+  }
+
   // Define the name for the chunk based on the original file name and index
   const chunkFileName = `${req.file.originalname}.part${chunkIndex}`;
 
@@ -87,8 +93,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       // Check if all chunks are received
       if (parseInt(chunkIndex) === totalChunks - 1) {
           console.log('All chunks received');
-          // You can implement logic to merge chunks here if necessary
-          // For example, you might want to combine the chunks into a single file
+          // Handle logic to merge chunks if necessary
       }
 
       res.status(200).send({ message: `Chunk ${parseInt(chunkIndex) + 1} uploaded successfully` });
