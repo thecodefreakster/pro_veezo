@@ -88,29 +88,37 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
 //   }
 // });
 
-// Route to stream video from Google Cloud Storage
-app.get('/video/:videoId', async (req, res) => {
-    const videoId = req.params.videoId; // Capture the video ID from the URL
-    const bucketName = 'veezopro_videos'; // Your GCS bucket name
-    const videoUrl = `https://storage.googleapis.com/${bucketName}/${videoId}`; // Construct the GCS URL
+app.get('/v_', (req, res) => {
+  const fileId = req.query.id;
+  if (!fileId) return res.status(400).send('File ID is required.');
 
-    try {
-        // Make a request to the GCS URL to stream the video
-        const response = await axios({
-            method: 'GET',
-            url: videoUrl,
-            responseType: 'stream' // Stream the response
-        });
-
-        // Set the correct content type for the video file
-        res.setHeader('Content-Type', 'video/quicktime'); // Use 'video/mp4' if the format is mp4
-        response.data.pipe(res); // Pipe the response data to the client
-    } catch (error) {
-        // Handle errors (e.g., video not found)
-        console.error('Error fetching video:', error.message);
-        res.status(404).send('Video not found');
-    }
+  const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}`;
+  res.redirect(gcsUrl);
 });
+
+// Route to stream video from Google Cloud Storage
+// app.get('/video/:videoId', async (req, res) => {
+//     const videoId = req.params.videoId; // Capture the video ID from the URL
+//     const bucketName = 'veezopro_videos'; // Your GCS bucket name
+//     const videoUrl = `https://storage.googleapis.com/${bucketName}/${videoId}`; // Construct the GCS URL
+
+//     try {
+//         // Make a request to the GCS URL to stream the video
+//         const response = await axios({
+//             method: 'GET',
+//             url: videoUrl,
+//             responseType: 'stream' // Stream the response
+//         });
+
+//         // Set the correct content type for the video file
+//         res.setHeader('Content-Type', 'video/quicktime'); // Use 'video/mp4' if the format is mp4
+//         response.data.pipe(res); // Pipe the response data to the client
+//     } catch (error) {
+//         // Handle errors (e.g., video not found)
+//         console.error('Error fetching video:', error.message);
+//         res.status(404).send('Video not found');
+//     }
+// });
 
 // 404 handler
 app.use((req, res, next) => {
