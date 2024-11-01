@@ -28,9 +28,6 @@ app.use(cors(corsOptions));
 // Multer setup
 const upload = multer({
   storage: multer.memoryStorage(), // Keep files in memory temporarily
-  limits: {
-    fileSize: 100 * 1024 * 1024 // 100MB
-  }
 });
 
 // Helper to generate random IDs
@@ -39,34 +36,65 @@ function generateRandomId() {
 }
 
 // Upload endpoint
-app.post('/api/upload', upload.single('file'), async (req, res, next) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No files uploaded' });
-  }
+// app.post('/api/upload', upload.single('file'), async (req, res, next) => {
+//   if (!req.file) {
+//     return res.status(400).json({ error: 'No files uploaded' });
+//   }
+
+//   try {
+//     const videoId = generateRandomId();
+//     const fileExtension = path.extname(req.file.originalname);
+//     const filename = `${videoId}${fileExtension}`;
+//     const blob = storage.bucket(bucketName).file(filename);
+//     console.log('Uploading');
+
+//     const blobStream = blob.createWriteStream({
+//       resumable: false,
+//       contentType: req.file.mimetype,
+//     });
+
+//     blobStream.on('error', (err) => next(err));
+
+//     blobStream.on('finish', () => {
+//       const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+//       console.log(`File uploaded successfully. Public URL: ${publicUrl}`);
+//       res.redirect(`https://www.veezo.pro/v_?id=${videoId}`); // Redirect to v_id route
+//     });
+
+//     blobStream.end(req.file.buffer);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+  const { chunkIndex, totalChunks } = req.body;
+  const fileBuffer = req.file.buffer; // Access the file buffer
+
+  // Define the name for the chunk based on the original file name and index
+  const chunkFileName = `${req.file.originalname}.part${chunkIndex}`;
 
   try {
-    const videoId = generateRandomId();
-    const fileExtension = path.extname(req.file.originalname);
-    const filename = `${videoId}${fileExtension}`;
-    const blob = storage.bucket(bucketName).file(filename);
-    console.log('Uploading');
+      // Upload chunk to Google Cloud Storage
+      await storage.bucket(bucketName).file(chunkFileName).save(fileBuffer, {
+          metadata: {
+              contentType: req.file.mimetype,
+          },
+      });
 
-    const blobStream = blob.createWriteStream({
-      resumable: false,
-      contentType: req.file.mimetype,
-    });
+      console.log(`Received chunk ${parseInt(chunkIndex) + 1} of ${totalChunks}`);
 
-    blobStream.on('error', (err) => next(err));
+      // Check if all chunks are received
+      if (parseInt(chunkIndex) === totalChunks - 1) {
+          console.log('All chunks received');
+          // You can implement logic to merge chunks here if necessary
+          // For example, you might want to combine the chunks into a single file
+      }
 
-    blobStream.on('finish', () => {
-      const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
-      console.log(`File uploaded successfully. Public URL: ${publicUrl}`);
-      res.redirect(`https://www.veezo.pro/v_?id=${videoId}`); // Redirect to v_id route
-    });
-
-    blobStream.end(req.file.buffer);
+      res.status(200).send({ message: `Chunk ${parseInt(chunkIndex) + 1} uploaded successfully` });
   } catch (error) {
-    next(error);
+      console.error('Error uploading chunk:', error);
+      res.status(500).send({ error: 'Failed to upload chunk' });
   }
 });
 

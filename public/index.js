@@ -116,20 +116,23 @@ async function uploadFileInChunks(file) {
         const chunk = file.slice(i * chunkSize, (i + 1) * chunkSize);
         const formData = new FormData();
         formData.append('file', chunk, fileName);
-        formData.append('chunkIndex', i); // Optional: send chunk index for server-side processing
-        formData.append('totalChunks', totalChunks); // Optional: send total chunks count for server-side processing
+        formData.append('chunkIndex', i);
+        formData.append('totalChunks', totalChunks);
 
-        // Call the upload endpoint for each chunk
         try {
-            await fetch('/api/upload', {
+            const response = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData
             });
+
+            if (!response.ok) {
+                throw new Error(`Error uploading chunk ${i + 1}: ${response.statusText}`);
+            }
             console.log(`Uploaded chunk ${i + 1} of ${totalChunks}`);
         } catch (error) {
             console.error('Error uploading chunk:', error);
             alert('Error uploading chunk. Please try again.');
-            return; // Exit if upload fails
+            return;
         }
     }
     alert('File uploaded successfully!');
