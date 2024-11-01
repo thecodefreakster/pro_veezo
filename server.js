@@ -45,7 +45,7 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
     blobStream.on('finish', () => {
       const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
       console.log(`File uploaded successfully. Public URL: ${publicUrl}`);
-      res.redirect(`https://www.veezo.pro/v_id?=${videoId}`); // Redirect to v_id route
+      res.redirect(`https://www.veezo.pro/v_?id=${videoId}`); // Redirect to v_id route
     });
 
     blobStream.end(req.file.buffer);
