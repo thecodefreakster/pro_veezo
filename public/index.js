@@ -1,3 +1,5 @@
+import { GetSignedUrl } from './server.js';
+
 let target = document.documentElement;
 let body = document.body;
 let fileInput = document.getElementById("selectedFile");
@@ -243,26 +245,25 @@ async function upload() {
     var fileInput = $("#selectedFile")[0]; // Access the input element directly
     var file = fileInput.files[0]; // Get the selected file
     if (file) {
-        const url = await GetSignedUrl(file.name);
-        $(".headline").hide();
-        $(".description").hide();
-        $(".upload-button").hide();
-        $(".headline-uploading").show();
-        $(".description-uploading").show();
-        $("#selectedFile").removeClass("clickListenerFile");
+        try {
+            const url = await GetSignedUrl(file.name);
+            $(".headline").hide();
+            $(".description").hide();
+            $(".upload-button").hide();
+            $(".headline-uploading").show();
+            $(".description-uploading").show();
+            $("#selectedFile").removeClass("clickListenerFile");
 
-        // Step 1: Get the signed URL
-        $.get(url, function(response) {
-            // Step 2: Upload the file to the signed URL
+            // Step 1: Get the signed URL and upload the file
             $.ajax({
-                url: response.url,
+                url: url, // Directly use the signed URL
                 method: 'PUT',
                 data: file,
                 processData: false,
-                contentType: 'video/quicktime', // Set the content type
-                xhr: function() {
+                contentType: file.type, // Set the content type dynamically
+                xhr: function () {
                     var xhr = new window.XMLHttpRequest();
-                    xhr.upload.addEventListener("progress", function(evt) {
+                    xhr.upload.addEventListener("progress", function (evt) {
                         if (evt.lengthComputable) {
                             var percentComplete = (evt.loaded / evt.total) * 100;
                             $(".description-uploading").html(percentComplete.toFixed(0) + "% complete.");
@@ -274,12 +275,12 @@ async function upload() {
                     }, false);
                     return xhr;
                 },
-                success: function(result) {
+                success: function (result) {
                     // Handle success (optionally notify the user)
                     $(".description-uploading").html("Upload complete!");
                     window.location.href = `https://www.veezo.pro/v_?id=${result.id}`; // Adjust as needed
                 },
-                error: function() {
+                error: function () {
                     $(".headline").show();
                     $(".description").show();
                     $(".upload-button").show();
@@ -288,7 +289,10 @@ async function upload() {
                     alert("An error occurred during the upload. Please try again.");
                 }
             });
-        });
+        } catch (error) {
+            console.error("Error during upload:", error);
+            alert("Failed to get signed URL. Please try again.");
+        }
     } else {
         alert("Please select a file to upload.");
     }
