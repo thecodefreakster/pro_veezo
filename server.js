@@ -12,6 +12,9 @@ const PORT = process.env.PORT || 3000;
 const storage = new Storage();
 const bucketName = 'veezopro_videos'; // GCS bucket name
 
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
+
 const corsOptions = {
   origin: corsConfig[0].origin,
   methods: corsConfig[0].method,
@@ -64,30 +67,6 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
   }
 });
 
-// v_id endpoint to serve the video
-// app.get('/video/:videoId', async (req, res) => {
-//   const videoId = req.params.videoId; // Capture the video ID from the URL
-//   const bucketName = 'veezopro_videos'; // Your GCS bucket name
-//   const videoUrl = `https://storage.googleapis.com/${bucketName}/${videoId}.mov`; // Construct the GCS URL
-
-//   try {
-//       // Make a request to the GCS URL to stream the video
-//       const response = await axios({
-//           method: 'GET',
-//           url: videoUrl,
-//           responseType: 'stream' // Stream the response
-//       });
-
-//       // Set the correct content type for video files
-//       res.setHeader('Content-Type', 'video/quicktime'); // Use 'video/mp4' if the format is mp4
-//       response.data.pipe(res); // Pipe the response data to the client
-//   } catch (error) {
-//       // Handle errors (e.g., video not found)
-//       console.error('Error fetching video:', error.message);
-//       res.status(404).send('Video not found');
-//   }
-// });
-
 app.get('/v_', (req, res) => {
   const fileId = req.query.id;
   if (!fileId) return res.status(400).send('File ID is required.');
@@ -95,30 +74,6 @@ app.get('/v_', (req, res) => {
   const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}`;
   res.redirect(gcsUrl);
 });
-
-// Route to stream video from Google Cloud Storages
-// app.get('/video/:videoId', async (req, res) => {
-//     const videoId = req.params.videoId; // Capture the video ID from the URL
-//     const bucketName = 'veezopro_videos'; // Your GCS bucket name
-//     const videoUrl = `https://storage.googleapis.com/${bucketName}/${videoId}`; // Construct the GCS URL
-
-//     try {
-//         // Make a request to the GCS URL to stream the video
-//         const response = await axios({
-//             method: 'GET',
-//             url: videoUrl,
-//             responseType: 'stream' // Stream the response
-//         });
-
-//         // Set the correct content type for the video file
-//         res.setHeader('Content-Type', 'video/quicktime'); // Use 'video/mp4' if the format is mp4
-//         response.data.pipe(res); // Pipe the response data to the client
-//     } catch (error) {
-//         // Handle errors (e.g., video not found)
-//         console.error('Error fetching video:', error.message);
-//         res.status(404).send('Video not found');
-//     }
-// });
 
 // 404 handler
 app.use((req, res, next) => {
