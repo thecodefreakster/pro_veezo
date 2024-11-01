@@ -13,8 +13,5 @@
                     "destination": "/v_?id=:id"
                 }
         
-    ],
-    "routes": [
-        { "src": "/v_(.*)", "dest": "/v_?id=$1" } 
     ]
 }
