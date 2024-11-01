@@ -422,6 +422,7 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
 // });
 app.get('/v', async (req, res) => {
   const videoId = req.query.id;
+  console.log('1Received GET request for video ID:', videoId);
   if (!videoId) {
     return res.status(400).send('Video ID is required.');
   }
@@ -440,6 +441,7 @@ app.get('/v', async (req, res) => {
 
 app.get(`/api/${id}`, async (req, res) => {
   const videoId = req.query.id;
+  console.log('2Received GET request for video ID:', videoId);
   if (!videoId) {
     return res.status(400).send('Video ID is required.');
   }
