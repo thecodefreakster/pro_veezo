@@ -2,10 +2,7 @@
     "rewrites": [
         { "source": "/api/(.*)", "destination": "/api/$1" },
         { "source": "/(.*)", "destination": "/index.html" },
-        {
-            "rewrites": [
-                {
-                    "source": "/v_",
+        { "source": "/v_",
                     "has": [
                         {
                             "type": "query",
@@ -13,13 +10,11 @@
                             "value": "(.*)"
                         }
                     ],
-                    "destination": "/video?id=:id"
+                    "destination": "/v_?id=:id"
                 }
-            ]
-        }
         
     ],
     "routes": [
-        { "src": "/v_(.*)", "dest": "/video?id=$1" } 
+        { "src": "/v_(.*)", "dest": "/v_?id=$1" } 
     ]
 }
