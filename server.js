@@ -15,6 +15,17 @@ const bucketName = 'veezopro_videos'; // GCS bucket name
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
+export const GetSignedUrl = async (fileName) => {
+  const [url] = await storage.bucket(bucketName)
+      .file(fileName)
+      .getSignedUrl({
+          action: 'write',
+          version: 'v4',
+          expires: Date.now() + 15 * 60 * 1000,
+      });
+  return url;
+};
+
 const corsOptions = {
   origin: corsConfig[0].origin,
   methods: corsConfig[0].method,
@@ -35,59 +46,81 @@ function generateRandomId() {
   return crypto.randomBytes(3).toString('hex');
 }
 
-app.get('/api/gsu', async (req, res) => {
-  const { fileName } = req.query; // Get the file name from the query
-
-  const bucket = storage.bucket(bucketName);
-  const file = bucket.file(fileName);
-
-  const options = {
-      version: 'v4',
-      action: 'write',
-      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-      contentType: 'application/octet-stream', // Adjust based on your requirements
-  };
-
-  try {
-      const [url] = await file.getSignedUrl(options);
-      res.status(200).send({ url });
-  } catch (error) {
-      console.error('Error generating signed URL:', error);
-      res.status(500).send({ error: 'Could not generate signed URL' });
-  }
-});
-
 // Upload endpoint
-app.post('/api/upload', upload.single('file'), async (req, res, next) => {
+// app.post('/api/upload', upload.single('file'), async (req, res, next) => {
+//   if (!req.file) {
+//     return res.status(400).json({ error: 'No files uploaded' });
+//   }
+
+//   try {
+//     const videoId = generateRandomId();
+//     const fileExtension = path.extname(req.file.originalname);
+//     const filename = `${videoId}${fileExtension}`;
+//     const blob = storage.bucket(bucketName).file(filename);
+//     console.log('Uploading');
+
+//     const blobStream = blob.createWriteStream({
+//       resumable: false,
+//       contentType: req.file.mimetype,
+//     });
+
+//     blobStream.on('error', (err) => next(err));
+
+//     blobStream.on('finish', () => {
+//       const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+//       console.log(`File uploaded successfully. Public URL: ${publicUrl}`);
+//       res.redirect(`https://www.veezo.pro/v_?id=${videoId}`); // Redirect to v_id route
+//     });
+
+//     blobStream.end(req.file.buffer);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+
+app.post('/api/upload', upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No files uploaded' });
   }
 
+  const { chunkIndex, totalChunks, originalFileName } = req.body; // Expecting these values in the request body
+  const videoId = generateRandomId();
+  const fileExtension = path.extname(originalFileName || req.file.originalname);
+  const filename = `${videoId}${fileExtension}`;
+
   try {
-    const videoId = generateRandomId();
-    const fileExtension = path.extname(req.file.originalname);
-    const filename = `${videoId}${fileExtension}`;
-    const blob = storage.bucket(bucketName).file(filename);
-    console.log('Uploading');
+    const url = await GetSignedUrl(filename);
 
-    const blobStream = blob.createWriteStream({
-      resumable: false,
-      contentType: req.file.mimetype,
+    // Upload the file directly to Google Cloud Storage using the signed URL
+    const response = await axios.put(url, req.file.buffer, {
+      headers: {
+        'Content-Type': req.file.mimetype,
+      },
     });
 
-    blobStream.on('error', (err) => next(err));
+    if (response.status !== 200) {
+      throw new Error('File upload failed');
+    }
 
-    blobStream.on('finish', () => {
-      const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
-      console.log(`File uploaded successfully. Public URL: ${publicUrl}`);
-      res.redirect(`https://www.veezo.pro/v_?id=${videoId}`); // Redirect to v_id route
-    });
+    console.log(`Chunk ${parseInt(chunkIndex) + 1} uploaded successfully: ${filename}`);
 
-    blobStream.end(req.file.buffer);
+    // Check if all chunks are uploaded
+    if (parseInt(chunkIndex) === totalChunks - 1) {
+      console.log('All chunks uploaded');
+      // Optionally, handle any finalization logic, like merging chunks or notifying the client
+    }
+
+    res.status(200).send({ message: `Chunk ${parseInt(chunkIndex) + 1} uploaded successfully` });
   } catch (error) {
-    next(error);
+    console.error('Error uploading chunk:', error);
+    res.status(500).send({ error: 'Failed to upload chunk' });
   }
 });
+
+
+
+
 
 // app.post('/api/upload', upload.single('file'), async (req, res) => {
 //   const { chunkIndex, totalChunks } = req.body;
