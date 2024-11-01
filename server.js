@@ -438,6 +438,24 @@ app.get('/v', async (req, res) => {
   }
 });
 
+app.get(`/api/${id}`, async (req, res) => {
+  const videoId = req.query.id;
+  if (!videoId) {
+    return res.status(400).send('Video ID is required.');
+  }
+
+  const gcsUrl = `https://storage.googleapis.com/${bucketName}/${videoId}.mov`;
+  try {
+    console.log('Get2--');
+    const response = await axios.get(gcsUrl, { responseType: 'stream' });
+    res.setHeader('Content-Type', 'video/quicktime');
+    response.data.pipe(res);
+  } catch (error) {
+    console.error('Error fetching video:', error.message);
+    res.status(404).send('Video not found.');
+  }
+});
+
 
 // 404 handler
 app.use((req, res, next) => {
