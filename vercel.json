@@ -2,7 +2,7 @@
     "rewrites": [
         { "source": "/api/(.*)", "destination": "/api/$1" },
         { "source": "/v_(.*)", "destination": "/video?id=$1" },
-        { "source": "/(.*)", "destination": "/log?path=$1" },  // Debugging
+        { "source": "/(.*)", "destination": "/log?path=$1" },
         { "source": "/(.*)", "destination": "/index.html" }
     ]
 }
