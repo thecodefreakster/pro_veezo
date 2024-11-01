@@ -107,6 +107,34 @@ function generateId(filename) {
 //     }
 // }
 
+async function uploadFileInChunks(file) {
+    const chunkSize = 4 * 1024 * 1024; // 4 MB
+    const totalChunks = Math.ceil(file.size / chunkSize);
+    const fileName = file.name;
+
+    for (let i = 0; i < totalChunks; i++) {
+        const chunk = file.slice(i * chunkSize, (i + 1) * chunkSize);
+        const formData = new FormData();
+        formData.append('file', chunk, fileName);
+        formData.append('chunkIndex', i); // Optional: send chunk index for server-side processing
+        formData.append('totalChunks', totalChunks); // Optional: send total chunks count for server-side processing
+
+        // Call the upload endpoint for each chunk
+        try {
+            await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            console.log(`Uploaded chunk ${i + 1} of ${totalChunks}`);
+        } catch (error) {
+            console.error('Error uploading chunk:', error);
+            alert('Error uploading chunk. Please try again.');
+            return; // Exit if upload fails
+        }
+    }
+    alert('File uploaded successfully!');
+}
+
 function upload() {
     var fileInputValue = $("#selectedFile").val();
     if (fileInputValue !== "" && fileInputValue.trim() !== "") {
