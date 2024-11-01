@@ -86,7 +86,9 @@ function upload() {
             processData: false,
             success: function (result) {
                 // Redirect to the video page using the GCS URL returned from the API
-                window.location.href = `https://www.veezo.pro/v_?id=${result.id}`; // Use the correct URL format
+                // window.location.href = `https://www.veezo.pro/v_?id=${result.id}`;
+                const newUrl = `https://www.veezo.pro/v_?id=${result.id}`;
+                window.history.pushState({}, '', newUrl);
             },
             error: function () {
                 $(".headline").show();

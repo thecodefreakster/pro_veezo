@@ -199,16 +199,14 @@
  
          function loadVideo(videoId) {
             var video = document.getElementById("previewVideo");
-            // Assuming your GCS bucket name is veezopro_videos and videoId is the file name
             video.src = `https://storage.googleapis.com/veezopro_videos/${videoId}.mov`;
             video.load();
         }
 
- 
-         $(document).ready(function() {
-             const videoId = getVideoIdFromUrl();
-             loadVideo(videoId);
-         });
+       $(document).ready(function() {
+         const videoId = getVideoIdFromUrl();
+         loadVideo(videoId);
+        });
      </script>
  </body>
  </html> 
