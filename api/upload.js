@@ -29,6 +29,7 @@ export default function handler(req, res) {
                 const fileId = generateRandomId();
                 const fileExtension = path.extname(req.file.originalname);
                 const filename = `${fileId}${fileExtension}`;
+                console.log('uploading---');
 
                 // Upload file to Google Cloud Storage
                 const bucketFile = storage.bucket(bucketName).file(filename);
