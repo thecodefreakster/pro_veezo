@@ -15,17 +15,6 @@ const bucketName = 'veezopro_videos'; // GCS bucket name
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
-export const GetSignedUrl = async (fileName) => {
-  const [url] = await storage.bucket(bucketName)
-      .file(fileName)
-      .getSignedUrl({
-          action: 'write',
-          version: 'v4',
-          expires: Date.now() + 15 * 60 * 1000, // Valid for 15 minutes
-      });
-  return url;
-};
-
 const corsOptions = {
   origin: corsConfig[0].origin,
   methods: corsConfig[0].method,
@@ -129,13 +118,13 @@ const upload = multer({
   },
 });
 
-app.get('/getSignedUrl', (req, res) => {
-  const signedUrl = GetSignedUrl(req.query.fileName); // example usage
-  res.json({ url: signedUrl });
-});
+async function generateSignedUrl(filename, options) {
+  const [url] = await bucket.file(filename).getSignedUrl(options);
+  return url;
+}
 
 app.get('/api/gsu', async (req, res) => {
-  const filename = req.query.filename; // Get filename from query
+  const filename = req.query.filename; // Extract filename from query parameter
   const options = {
       version: 'v4',
       action: 'write',
@@ -144,16 +133,14 @@ app.get('/api/gsu', async (req, res) => {
   };
 
   try {
-      const [url] = await storage
-          .bucket(bucketName)
-          .file(filename)
-          .getSignedUrl(options);
-      res.status(200).json({ url });
+      const signedUrl = await generateSignedUrl(filename, options); // Example function to get signed URL
+      res.json({ url: signedUrl });
   } catch (error) {
-      console.error(error);
+      console.error('Error generating signed URL:', error);
       res.status(500).json({ error: 'Failed to generate signed URL' });
   }
 });
+
 
 // Handle the upload endpoint
 app.post('/api/upload', upload.single('file'), async (req, res) => {
