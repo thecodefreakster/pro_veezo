@@ -108,6 +108,81 @@ function generateId(filename) {
 // }
 
 
+// function upload() {
+//     var fileInput = $("#selectedFile")[0]; // Access the input element directly
+//     var file = fileInput.files[0]; // Get the selected file
+//     if (file) {
+//         const chunkSize = 4 * 1024 * 1024; // 4 MB chunk size
+//         const totalChunks = Math.ceil(file.size / chunkSize); // Calculate total chunks
+//         let uploadedChunks = 0; // Keep track of uploaded chunks
+
+//         $(".headline").hide();
+//         $(".description").hide();
+//         $(".upload-button").hide();
+//         $(".headline-uploading").show();
+//         $(".description-uploading").show();
+//         $("#selectedFile").removeClass("clickListenerFile");
+
+//         // Function to upload a single chunk
+//         const uploadChunk = (chunkIndex) => {
+//             const start = chunkIndex * chunkSize;
+//             const end = Math.min(start + chunkSize, file.size);
+//             const chunk = file.slice(start, end); // Get the current chunk
+
+//             const formData = new FormData();
+//             formData.append('file', chunk);
+//             formData.append('chunkIndex', chunkIndex);
+//             formData.append('totalChunks', totalChunks);
+
+//             $.ajax({
+//                 xhr: function () {
+//                     var xhr = new window.XMLHttpRequest();
+//                     xhr.upload.addEventListener("progress", function (evt) {
+//                         if (evt.lengthComputable) {
+//                             var percentComplete = (uploadedChunks + (evt.loaded / evt.total)) / totalChunks;
+//                             percentComplete = parseInt(percentComplete * 100);
+//                             $(".description-uploading").html(percentComplete + "% complete.");
+
+//                             if (percentComplete === 100) {
+//                                 $(".description-uploading").html("Finalizing...");
+//                             }
+//                         }
+//                     }, false);
+//                     return xhr;
+//                 },
+//                 url: '/api/upload',  // This endpoint should handle the upload to GCS
+//                 type: 'POST',
+//                 data: formData,
+//                 cache: false,
+//                 contentType: false,
+//                 processData: false,
+//                 success: function (result) {
+//                     uploadedChunks++; // Increment uploaded chunks count
+//                     if (uploadedChunks < totalChunks) {
+//                         uploadChunk(uploadedChunks); // Upload next chunk
+//                     } else {
+//                         // All chunks uploaded
+//                         window.location.href = `https://www.veezo.pro/v_?id=${result.id}`;
+//                     }
+//                 },
+//                 error: function () {
+//                     $(".headline").show();
+//                     $(".description").show();
+//                     $(".upload-button").show();
+//                     $(".headline-uploading").hide();
+//                     $(".description-uploading").hide();
+//                     alert("An error occurred during the upload. Please try again.");
+//                 }
+//             });
+//         };
+
+//         // Start uploading the first chunk
+//         uploadChunk(0);
+//     } else {
+//         alert("Please select a file to upload.");
+//     }
+// }
+
 function upload() {
     var fileInput = $("#selectedFile")[0]; // Access the input element directly
     var file = fileInput.files[0]; // Get the selected file
@@ -133,6 +208,7 @@ function upload() {
             formData.append('file', chunk);
             formData.append('chunkIndex', chunkIndex);
             formData.append('totalChunks', totalChunks);
+            formData.append('mimeType', file.type); // Add mime type to FormData
 
             $.ajax({
                 xhr: function () {
@@ -182,3 +258,4 @@ function upload() {
         alert("Please select a file to upload.");
     }
 }
+
