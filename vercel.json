@@ -1,7 +1,7 @@
 {
     "rewrites": [
         { "source": "/api/(.*)", "destination": "/api/$1" },
-        { "source": "/v_", "has": [{ "type": "query", "key": "id", "value": "(.*)" }] , "destination": "/video?id=:id" },
+        { "source": "/v_?id=:id", "destination": "/video?id=:id" },
         { "source": "/(.*)", "destination": "/index.html" }
     ]
 }
