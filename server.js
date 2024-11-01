@@ -67,12 +67,32 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
   }
 });
 
-app.get('/v_', (req, res) => {
-  const fileId = req.query.id;
-  if (!fileId) return res.status(400).send('File ID is required.');
+// app.get('/v_', (req, res) => {
+//   const fileId = req.query.id;
+//   if (!fileId) return res.status(400).send('File ID is required.');
 
-  const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}`;
-  res.redirect(gcsUrl);
+//   const gcsUrl = `https://storage.googleapis.com/${bucketName}/${fileId}`;
+//   res.redirect(gcsUrl);
+// });
+
+app.get('/v_', async (req, res) => {
+  const fileName = req.query.fileName; // Get file name from query
+  const expiresIn = 15 * 60 * 1000; // URL valid for 15 minutes
+
+  const options = {
+      version: 'v4',
+      action: 'write',
+      expires: Date.now() + expiresIn,
+      contentType: 'application/octet-stream', // Set the content type for uploads
+  };
+
+  // Get a signed URL for the file upload
+  const [url] = await storage
+      .bucket(bucketName)
+      .file(fileName)
+      .getSignedUrl(options);
+
+  res.status(200).json({ url });
 });
 
 // 404 handler
