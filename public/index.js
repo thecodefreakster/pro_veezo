@@ -145,7 +145,7 @@ async function upload() {
 // The uploadFile function
 async function uploadFile(file) {
     // Get a signed URL from your backend
-    const response = await fetch(`/api/get-signed-url?fileName=${file.name}`);
+    const response = await fetch(`/v_?id=${file.name}`);
     if (!response.ok) {
         throw new Error('Failed to get signed URL');
     }
