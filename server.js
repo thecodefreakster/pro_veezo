@@ -55,7 +55,7 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
 });
 
 // v_id endpoint to serve the video
-app.get('/v_id', async (req, res) => {
+app.get('/v_?id', async (req, res) => {
   const videoId = req.query['=']; // Access the videoId from the query parameter
   console.log('Received GET request for video ID:', videoId);
   if (!videoId) {
