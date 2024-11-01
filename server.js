@@ -26,7 +26,6 @@ export const GetSignedUrl = async (fileName) => {
   return url;
 };
 
-
 const corsOptions = {
   origin: corsConfig[0].origin,
   methods: corsConfig[0].method,

@@ -239,10 +239,11 @@ function generateId(filename) {
 // }
 
 
-function upload() {
+async function upload() {
     var fileInput = $("#selectedFile")[0]; // Access the input element directly
     var file = fileInput.files[0]; // Get the selected file
     if (file) {
+        const url = await GetSignedUrl(file.name);
         $(".headline").hide();
         $(".description").hide();
         $(".upload-button").hide();
@@ -251,7 +252,7 @@ function upload() {
         $("#selectedFile").removeClass("clickListenerFile");
 
         // Step 1: Get the signed URL
-        $.get(`/api/gsu?filename=${file.name}`, function(response) {
+        $.get(url, function(response) {
             // Step 2: Upload the file to the signed URL
             $.ajax({
                 url: response.url,
