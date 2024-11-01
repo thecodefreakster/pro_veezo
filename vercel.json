@@ -1,5 +1,10 @@
 {
     "rewrites": [
-        {"source": "/(.*)", "destination": "/"}
+        { "source": "/api/(.*)", "destination": "/api/$1" }, // Proxy API requests
+        { "source": "/v_", "destination": "/video" }, // Specific route for videos
+        { "source": "/(.*)", "destination": "/index.html" } // Serve SPA
+    ],
+    "routes": [
+        { "src": "/v_(.*)", "dest": "/video?id=$1" } // Handles video requests with id
     ]
 }
