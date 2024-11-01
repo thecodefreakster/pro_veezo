@@ -1,5 +1,3 @@
-const { GetSignedUrl } = require('./server.js');
-
 let target = document.documentElement;
 let body = document.body;
 let fileInput = document.getElementById("selectedFile");
@@ -242,11 +240,12 @@ function generateId(filename) {
 
 
 async function upload() {
+    const response = await fetch(`/getSignedUrl?fileName=${file.name}`);
+    const { url } = await response.json();
     var fileInput = $("#selectedFile")[0]; // Access the input element directly
     var file = fileInput.files[0]; // Get the selected file
     if (file) {
         try {
-            const url = await GetSignedUrl(file.name);
             $(".headline").hide();
             $(".description").hide();
             $(".upload-button").hide();

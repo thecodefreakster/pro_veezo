@@ -129,6 +129,11 @@ const upload = multer({
   },
 });
 
+app.get('/getSignedUrl', (req, res) => {
+  const signedUrl = GetSignedUrl(req.query.fileName); // example usage
+  res.json({ url: signedUrl });
+});
+
 app.get('/api/gsu', async (req, res) => {
   const filename = req.query.filename; // Get filename from query
   const options = {
