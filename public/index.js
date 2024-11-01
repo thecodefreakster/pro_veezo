@@ -240,8 +240,6 @@ function generateId(filename) {
 
 
 async function upload() {
-    const response = await fetch(`/api/gsu?filename=${file.name}`);
-    const { url } = await response.json();
     var fileInput = $("#selectedFile")[0]; // Access the input element directly
     var file = fileInput.files[0]; // Get the selected file
     if (file) {
