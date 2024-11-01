@@ -21,10 +21,11 @@ export const GetSignedUrl = async (fileName) => {
       .getSignedUrl({
           action: 'write',
           version: 'v4',
-          expires: Date.now() + 15 * 60 * 1000,
+          expires: Date.now() + 15 * 60 * 1000, // Valid for 15 minutes
       });
   return url;
 };
+
 
 const corsOptions = {
   origin: corsConfig[0].origin,
@@ -80,19 +81,21 @@ function generateRandomId() {
 
 
 app.post('/api/upload', upload.single('file'), async (req, res) => {
+  const { chunkIndex, totalChunks } = req.body;
+
   if (!req.file) {
     return res.status(400).json({ error: 'No files uploaded' });
   }
 
-  const { chunkIndex, totalChunks, originalFileName } = req.body; // Expecting these values in the request body
   const videoId = generateRandomId();
-  const fileExtension = path.extname(originalFileName || req.file.originalname);
-  const filename = `${videoId}${fileExtension}`;
+  const fileExtension = path.extname(req.file.originalname);
+  const chunkFileName = `${videoId}_chunk_${chunkIndex}${fileExtension}`;
 
   try {
-    const url = await GetSignedUrl(filename);
+    // Get a signed URL for the chunk
+    const url = await GetSignedUrl(chunkFileName);
 
-    // Upload the file directly to Google Cloud Storage using the signed URL
+    // Upload the chunk
     const response = await axios.put(url, req.file.buffer, {
       headers: {
         'Content-Type': req.file.mimetype,
@@ -100,63 +103,24 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     });
 
     if (response.status !== 200) {
-      throw new Error('File upload failed');
+      return res.status(500).json({ error: 'Failed to upload chunk' });
     }
 
-    console.log(`Chunk ${parseInt(chunkIndex) + 1} uploaded successfully: ${filename}`);
+    console.log(`Chunk ${chunkIndex} uploaded successfully.`);
 
     // Check if all chunks are uploaded
     if (parseInt(chunkIndex) === totalChunks - 1) {
-      console.log('All chunks uploaded');
-      // Optionally, handle any finalization logic, like merging chunks or notifying the client
+      console.log('All chunks uploaded successfully.');
+      // Logic to handle completion (e.g., combining files, notifying user)
     }
 
-    res.status(200).send({ message: `Chunk ${parseInt(chunkIndex) + 1} uploaded successfully` });
+    res.status(200).send({ message: `Chunk ${chunkIndex} uploaded successfully` });
   } catch (error) {
     console.error('Error uploading chunk:', error);
     res.status(500).send({ error: 'Failed to upload chunk' });
   }
 });
 
-
-
-
-
-// app.post('/api/upload', upload.single('file'), async (req, res) => {
-//   const { chunkIndex, totalChunks } = req.body;
-//   const fileBuffer = req.file.buffer; // Access the file buffer
-
-//   Validate chunk size to prevent exceeding limits
-//   const maxChunkSize = 4.5 * 1024 * 1024; // 4.5 MB
-//   if (fileBuffer.length > maxChunkSize) {
-//       return res.status(413).send({ error: 'Chunk exceeds the maximum size of 4.5 MB' });
-//   }
-
-//   Define the name for the chunk based on the original file name and index
-//   const chunkFileName = `${req.file.originalname}.part${chunkIndex}`;
-
-//   try {
-//       Upload chunk to Google Cloud Storage
-//       await storage.bucket(bucketName).file(chunkFileName).save(fileBuffer, {
-//           metadata: {
-//               contentType: req.file.mimetype,
-//           },
-//       });
-
-//       console.log(`Received chunk ${parseInt(chunkIndex) + 1} of ${totalChunks}`);
-
-//       Check if all chunks are received
-//       if (parseInt(chunkIndex) === totalChunks - 1) {
-//           console.log('All chunks received');
-//           Handle logic to merge chunks if necessary
-//       }
-
-//       res.status(200).send({ message: `Chunk ${parseInt(chunkIndex) + 1} uploaded successfully` });
-//   } catch (error) {
-//       console.error('Error uploading chunk:', error);
-//       res.status(500).send({ error: 'Failed to upload chunk' });
-//   }
-// });
 
 app.get('/v_', (req, res) => {
   const fileId = req.query.id;
