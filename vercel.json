@@ -2,16 +2,7 @@
     "rewrites": [
         { "source": "/api/(.*)", "destination": "/api/$1" },
         { "source": "/(.*)", "destination": "/index.html" },
-        { "source": "/v_",
-                    "has": [
-                        {
-                            "type": "query",
-                            "key": "id",
-                            "value": "(.*)"
-                        }
-                    ],
-                    "destination": "/v_?id=:id"
-                }
+        { "source": "/v_", "destination": "/v_?id=:id" }
         
     ]
 }
