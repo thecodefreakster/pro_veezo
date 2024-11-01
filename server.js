@@ -394,6 +394,7 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
     const fileExtension = path.extname(req.file.originalname);
     const filename = `${videoId}${fileExtension}`;
     const blob = storage.bucket(bucketName).file(filename);
+    console.log('Uploading');
 
     const blobStream = blob.createWriteStream({
       resumable: false,
@@ -414,11 +415,29 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
 });
 
 // Route to serve video file from GCS
-app.get('/v', (req, res) => {
+// app.get('/v', (req, res) => {
+//   const videoId = req.query.id;
+//   const fileUrl = `https://storage.googleapis.com/${bucketName}/${videoId}.mov`; // Assuming videos are in .mp4 format
+//   res.redirect(fileUrl);
+// });
+app.get('/v', async (req, res) => {
   const videoId = req.query.id;
-  const fileUrl = `https://storage.googleapis.com/${bucketName}/${videoId}.mov`; // Assuming videos are in .mp4 format
-  res.redirect(fileUrl);
+  if (!videoId) {
+    return res.status(400).send('Video ID is required.');
+  }
+
+  const gcsUrl = `https://storage.googleapis.com/${bucketName}/${videoId}.mov`;
+  try {
+    console.log('Get--');
+    const response = await axios.get(gcsUrl, { responseType: 'stream' });
+    res.setHeader('Content-Type', 'video/quicktime');
+    response.data.pipe(res);
+  } catch (error) {
+    console.error('Error fetching video:', error.message);
+    res.status(404).send('Video not found.');
+  }
 });
+
 
 // 404 handler
 app.use((req, res, next) => {
