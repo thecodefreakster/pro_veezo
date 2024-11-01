@@ -190,6 +190,7 @@ function upload() {
         const chunkSize = 4 * 1024 * 1024; // 4 MB chunk size
         const totalChunks = Math.ceil(file.size / chunkSize); // Calculate total chunks
         let uploadedChunks = 0; // Keep track of uploaded chunks
+        const videoId = generateRandomId(); // Generate the video ID once
 
         $(".headline").hide();
         $(".description").hide();
@@ -198,17 +199,13 @@ function upload() {
         $(".description-uploading").show();
         $("#selectedFile").removeClass("clickListenerFile");
 
-        // Function to upload a single chunk
-        const uploadChunk = (chunkIndex) => {
-            const start = chunkIndex * chunkSize;
-            const end = Math.min(start + chunkSize, file.size);
+        // Function to read the file and upload it
+        const readAndUploadFile = (start, end) => {
             const chunk = file.slice(start, end); // Get the current chunk
 
             const formData = new FormData();
             formData.append('file', chunk);
-            formData.append('chunkIndex', chunkIndex);
-            formData.append('totalChunks', totalChunks);
-            formData.append('mimeType', file.type); // Add mime type to FormData
+            formData.append('videoId', videoId); // Include the video ID
 
             $.ajax({
                 xhr: function () {
@@ -235,10 +232,12 @@ function upload() {
                 success: function (result) {
                     uploadedChunks++; // Increment uploaded chunks count
                     if (uploadedChunks < totalChunks) {
-                        uploadChunk(uploadedChunks); // Upload next chunk
+                        const nextStart = uploadedChunks * chunkSize;
+                        const nextEnd = Math.min(nextStart + chunkSize, file.size);
+                        readAndUploadFile(nextStart, nextEnd); // Upload next chunk
                     } else {
                         // All chunks uploaded
-                        window.location.href = `https://www.veezo.pro/v_?id=${result.id}`;
+                        window.location.href = `https://www.veezo.pro/v_?id=${videoId}`; // Use the generated ID
                     }
                 },
                 error: function () {
@@ -252,10 +251,16 @@ function upload() {
             });
         };
 
-        // Start uploading the first chunk
-        uploadChunk(0);
+        // Start reading and uploading the file
+        readAndUploadFile(0, Math.min(chunkSize, file.size)); // Start with the first chunk
     } else {
         alert("Please select a file to upload.");
     }
 }
+
+// Helper function to generate a random video ID
+function generateRandomId() {
+    return Math.random().toString(36).substr(2, 9); // Random ID generation logic
+}
+
 
