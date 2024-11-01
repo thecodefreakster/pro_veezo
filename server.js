@@ -130,6 +130,27 @@ const upload = multer({
   },
 });
 
+app.get('/api/gsu', async (req, res) => {
+  const filename = req.query.filename; // Get filename from query
+  const options = {
+      version: 'v4',
+      action: 'write',
+      expires: Date.now() + 15 * 60 * 1000, // URL valid for 15 minutes
+      contentType: 'video/quicktime', // Set the content type
+  };
+
+  try {
+      const [url] = await storage
+          .bucket(bucketName)
+          .file(filename)
+          .getSignedUrl(options);
+      res.status(200).json({ url });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to generate signed URL' });
+  }
+});
+
 // Handle the upload endpoint
 app.post('/api/upload', upload.single('file'), async (req, res) => {
   if (!req.file) {
