@@ -35,7 +35,8 @@ target.addEventListener('drop', (e) => {
 window.addEventListener('paste', e => {
     if (e.clipboardData.files.length > 0) {
         fileInput.files = e.clipboardData.files;
-        upload();
+        //upload();
+        handleFileChange();
     }
 });
 
@@ -45,6 +46,59 @@ function handleClick() {
         $(".clickListenerFile").click();
     }
 }
+
+const handleFileChange = async (event) => {
+    console.log('fileChange---');
+    event.preventDefault();
+
+    // Get the file from the input element
+    const file = event.target.files?.[0];
+
+    if (file) {
+        try {
+            // Set the upload URL for GCS directly
+            const bucketName = 'veezopro_videos'; // Replace with your actual bucket name
+            const filename = `${generateId(file.name)}.${file.name.split('.').pop()}`;
+            const gcsUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+
+            // Upload the file to Google Cloud Storage directly
+            const response = await fetch(gcsUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': file.type, // Ensure GCS stores with the correct MIME type
+                },
+                body: file,
+            });
+
+            if (!response.ok) {
+                throw new Error('File upload failed');
+            }
+
+            // Update the local video URL for playback
+            const localUrl = URL.createObjectURL(file);
+            setVideoUrl(localUrl);
+
+            // Redirect to the video URL or update the page URL to reflect the new video ID
+            const playbackUrl = `/v?id=${filename}`;
+            window.history.pushState({}, '', playbackUrl);
+
+            // Indicate the upload progress as complete
+            setUploadProgress(100);
+        } catch (error) {
+            console.error('Upload error:', error);
+        } finally {
+            // Reset the state after the upload is complete or if an error occurred
+            setUploading(false);
+            setFinalizing(false);
+        }
+    }
+};
+
+// Helper function to generate a unique ID (or you could use a UUID library)
+function generateId(filename) {
+    return filename.split('.')[0] + '_' + Math.random().toString(36).substr(2, 9);
+}
+
 
 // Function to handle the file upload
 function upload() {
@@ -86,9 +140,7 @@ function upload() {
             processData: false,
             success: function (result) {
                 // Redirect to the video page using the GCS URL returned from the API
-                // window.location.href = `https://www.veezo.pro/v_?id=${result.id}`;
-                const newUrl = `https://www.veezo.pro/v_?id=${result.id}`;
-                window.history.pushState({}, '', newUrl);
+                window.location.href = `https://www.veezo.pro/v_?id=${result.id}`;
             },
             error: function () {
                 $(".headline").show();
