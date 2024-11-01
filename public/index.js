@@ -187,8 +187,6 @@ function upload() {
     var fileInput = $("#selectedFile")[0]; // Access the input element directly
     var file = fileInput.files[0]; // Get the selected file
     if (file) {
-        const videoId = generateRandomId(); // Generate the video ID once
-
         $(".headline").hide();
         $(".description").hide();
         $(".upload-button").hide();
@@ -196,57 +194,50 @@ function upload() {
         $(".description-uploading").show();
         $("#selectedFile").removeClass("clickListenerFile");
 
-        // Use FileReader to read the file as an ArrayBuffer
-        var reader = new FileReader();
-        reader.onload = function(event) {
-            const arrayBuffer = event.target.result; // Get the result as an ArrayBuffer
+        // Create a FormData object to hold the file
+        var formData = new FormData();
+        formData.append('file', file); // Append the file directly
 
-            const formData = new FormData();
-            formData.append('file', new Blob([arrayBuffer], { type: file.type })); // Create a Blob from the ArrayBuffer
-            formData.append('videoId', videoId); // Include the video ID
-
-            $.ajax({
-                xhr: function () {
-                    var xhr = new window.XMLHttpRequest();
-                    xhr.upload.addEventListener("progress", function (evt) {
-                        if (evt.lengthComputable) {
-                            var percentComplete = (evt.loaded / evt.total) * 100;
-                            $(".description-uploading").html(percentComplete.toFixed(0) + "% complete.");
-                            
-                            if (percentComplete === 100) {
-                                $(".description-uploading").html("Finalizing...");
-                            }
+        $.ajax({
+            xhr: function () {
+                var xhr = new window.XMLHttpRequest();
+                // Upload progress event
+                xhr.upload.addEventListener("progress", function (evt) {
+                    if (evt.lengthComputable) {
+                        var percentComplete = (evt.loaded / evt.total) * 100;
+                        $(".description-uploading").html(percentComplete.toFixed(0) + "% complete.");
+                        
+                        if (percentComplete === 100) {
+                            $(".description-uploading").html("Finalizing...");
                         }
-                    }, false);
-                    return xhr;
-                },
-                url: '/api/upload',  // This endpoint should handle the upload to GCS
-                type: 'POST',
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (result) {
-                    // Redirect to the video page using the GCS URL returned from the API
-                    window.location.href = `https://www.veezo.pro/v_?id=${result.id}`;
-                },
-                error: function () {
-                    $(".headline").show();
-                    $(".description").show();
-                    $(".upload-button").show();
-                    $(".headline-uploading").hide();
-                    $(".description-uploading").hide();
-                    alert("An error occurred during the upload. Please try again.");
-                }
-            });
-        };
-
-        // Read the file
-        reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
+                    }
+                }, false);
+                return xhr;
+            },
+            url: '/api/upload',  // Endpoint that handles the upload to GCS
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (result) {
+                // Redirect to the video page using the GCS URL returned from the API
+                window.location.href = `https://www.veezo.pro/v_?id=${result.id}`;
+            },
+            error: function () {
+                $(".headline").show();
+                $(".description").show();
+                $(".upload-button").show();
+                $(".headline-uploading").hide();
+                $(".description-uploading").hide();
+                alert("An error occurred during the upload. Please try again.");
+            }
+        });
     } else {
         alert("Please select a file to upload.");
     }
 }
+
 
 // Helper function to generate a random video ID
 function generateRandomId() {

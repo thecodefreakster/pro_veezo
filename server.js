@@ -38,9 +38,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Multer setup
-const upload = multer({
-  storage: multer.memoryStorage(), // Keep files in memory temporarily
-});
+// const upload = multer({
+//   storage: multer.memoryStorage(), // Keep files in memory temporarily
+// });
 
 // Helper to generate random IDs
 function generateRandomId() {
@@ -123,36 +123,40 @@ function generateRandomId() {
 
 
 
-app.post('/api/upload', async (req, res, next) => {
-  const { videoId } = req.body;
+const upload = multer({
+  storage: multer.memoryStorage(), // Store files in memory
+  limits: {
+      fileSize: 100 * 1024 * 1024, // Limit size to 100MB (adjust as needed)
+  },
+});
 
+// Handle the upload endpoint
+app.post('/api/upload', upload.single('file'), async (req, res) => {
   if (!req.file) {
       return res.status(400).json({ error: 'No files uploaded' });
   }
 
-  const mimeType = req.file.mimetype; // Get the correct MIME type from the uploaded file
+  const filename = req.file.originalname; // Use the original file name
+  const blob = storage.bucket(bucketName).file(filename);
 
-  try {
-      const filename = `${videoId}.mp4`; // Use the video ID for naming (ensure proper extension)
-      const blob = storage.bucket(bucketName).file(filename);
+  const blobStream = blob.createWriteStream({
+      resumable: false, // Set to false for single upload
+      contentType: req.file.mimetype, // Set content type
+  });
 
-      const blobStream = blob.createWriteStream({
-          resumable: false,
-          contentType: mimeType, // Set content type
-      });
+  blobStream.on('error', (err) => {
+      console.error(err);
+      return res.status(500).json({ error: 'Failed to upload file' });
+  });
 
-      blobStream.on('error', (err) => next(err));
+  blobStream.on('finish', () => {
+      const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+      res.status(200).json({ id: filename, url: publicUrl }); // Return the file URL
+  });
 
-      blobStream.on('finish', () => {
-          const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
-          res.status(200).json({ id: videoId, url: publicUrl }); // Send back the ID and URL
-      });
-
-      blobStream.end(req.file.buffer); // End the stream with the buffer
-  } catch (error) {
-      next(error);
-  }
+  blobStream.end(req.file.buffer); // End the stream with the file buffer
 });
+
 
 
 
