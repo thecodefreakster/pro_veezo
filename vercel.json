@@ -1,6 +1,0 @@
-{
-    "rewrites": [
-      { "source": "/v_id", "destination": "/api/v_id" }
-    ]
-  }
-  
