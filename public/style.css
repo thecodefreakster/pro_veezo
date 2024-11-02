@@ -283,15 +283,10 @@ img {
 .videoContainer {
   display: flex;
   justify-content: center;
-  /* Center horizontally */
   align-items: center;
-  /* Center vertically */
   height: 100vh;
-  /* Full viewport height */
   width: 100%;
-  /* Full width */
   background-color: #f3f4f6;
-  /* Optional: add a background color */
 }
 
 
