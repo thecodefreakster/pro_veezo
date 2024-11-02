@@ -35,99 +35,54 @@ function generateRandomId() {
   return crypto.randomBytes(3).toString('hex');
 }
 
-// Upload endpoint
-app.post('/api/upload', upload.single('file'), async (req, res, next) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No files uploaded' });
-  }
+app.post('/api/get-signed-url', async (req, res) => {
+    const { fileName } = req.body;
 
-  try {
-    const videoId = generateRandomId();
-    const fileExtension = path.extname(req.file.originalname);
-    const filename = `${videoId}${fileExtension}`;
-    const blob = storage.bucket(bucketName).file(filename);
-    console.log('Uploading');
+    try {
+        const [url] = await storage.bucket(bucketName)
+            .file(fileName)
+            .getSignedUrl({
+                action: 'write',
+                version: 'v4',
+                expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+            });
 
-    const blobStream = blob.createWriteStream({
-      resumable: false,
-      contentType: req.file.mimetype,
-    });
-
-    blobStream.on('error', (err) => next(err));
-
-    blobStream.on('finish', () => {
-      const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
-      console.log(`File uploaded successfully. Public URL: ${publicUrl}`);
-      res.redirect(`https://www.veezo.pro/v_?id=${videoId}`); // Redirect to v_id route
-    });
-
-    blobStream.end(req.file.buffer);
-  } catch (error) {
-    next(error);
-  }
+        res.json({ url });
+    } catch (error) {
+        console.error('Error generating signed URL:', error);
+        res.status(500).send("Could not generate signed URL");
+    }
 });
 
-
-// app.post('/api/upload', upload.single('file'), async (req, res) => {
-//   const { chunkIndex, totalChunks } = req.body;
-
+// Upload endpoint
+// app.post('/api/upload', upload.single('file'), async (req, res, next) => {
 //   if (!req.file) {
 //     return res.status(400).json({ error: 'No files uploaded' });
 //   }
 
-//   const videoId = generateRandomId();
-//   const fileExtension = path.extname(req.file.originalname);
-//   const chunkFileName = `${videoId}_chunk_${chunkIndex}${fileExtension}`;
-
 //   try {
-//     // Get a signed URL for the chunk
-//     const url = await GetSignedUrl(chunkFileName);
+//     const videoId = generateRandomId();
+//     const fileExtension = path.extname(req.file.originalname);
+//     const filename = `${videoId}${fileExtension}`;
+//     const blob = storage.bucket(bucketName).file(filename);
+//     console.log('Uploading');
 
-//     // Upload the chunk
-//     const response = await axios.put(url, req.file.buffer, {
-//       headers: {
-//         'Content-Type': req.file.mimetype,
-//       },
+//     const blobStream = blob.createWriteStream({
+//       resumable: false,
+//       contentType: req.file.mimetype,
 //     });
 
-//     if (response.status !== 200) {
-//       return res.status(500).json({ error: 'Failed to upload chunk' });
-//     }
+//     blobStream.on('error', (err) => next(err));
 
-//     console.log(`Chunk ${chunkIndex} uploaded successfully.`);
+//     blobStream.on('finish', () => {
+//       const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+//       console.log(`File uploaded successfully. Public URL: ${publicUrl}`);
+//       res.redirect(`https://www.veezo.pro/v_?id=${videoId}`); // Redirect to v_id route
+//     });
 
-//     // Check if all chunks are uploaded
-//     if (parseInt(chunkIndex) === totalChunks - 1) {
-//       console.log('All chunks uploaded successfully.');
-//       // Logic to handle completion (e.g., combining files, notifying user)
-//     }
-
-//     res.status(200).send({ message: `Chunk ${chunkIndex} uploaded successfully` });
+//     blobStream.end(req.file.buffer);
 //   } catch (error) {
-//     console.error('Error uploading chunk:', error);
-//     res.status(500).send({ error: 'Failed to upload chunk' });
-//   }
-// });
-
-
-// app.get('/api/gsu', async (req, res) => {
-//   const filename = req.query.filename; // Get filename from query
-//   const options = {
-//       version: 'v4',
-//       action: 'write',
-//       expires: Date.now() + 15 * 60 * 1000, // URL valid for 15 minutes
-//       contentType: 'video/quicktime', // Set the content type
-//   };
-
-//   try {
-//       const [url] = await storage
-//           .bucket(bucketName)
-//           .file(filename)
-//           .getSignedUrl(options);
-//       res.status(200).json({ url });
-//   } catch (error) {
-//       console.error(error);
-//       res.status(500).json({ error: 'Failed to generate signed URL' });
+//     next(error);
 //   }
 // });
 
@@ -157,8 +112,6 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 
   blobStream.end(req.file.buffer); // End the stream with the file buffer
 });
-
-
 
 
 app.get('/v_', (req, res) => {
