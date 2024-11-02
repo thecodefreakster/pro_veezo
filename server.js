@@ -4,7 +4,6 @@ const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 const crypto = require('crypto');
 const axios = require('axios'); // Ensure you have axios imported
-const corsConfig = require('./cors-config.json');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -111,66 +110,53 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
 // });
 
 
+// app.get('/api/gsu', async (req, res) => {
+//   const filename = req.query.filename; // Get filename from query
+//   const options = {
+//       version: 'v4',
+//       action: 'write',
+//       expires: Date.now() + 15 * 60 * 1000, // URL valid for 15 minutes
+//       contentType: 'video/quicktime', // Set the content type
+//   };
 
-<<<<<<< HEAD
-=======
-const upload = multer({
-  storage: multer.memoryStorage(), // Store files in memory
-  limits: {
-      fileSize: 100 * 1024 * 1024, // Limit size to 100MB (adjust as needed)
-  },
-});
-
-async function generateSignedUrl(filename, options) {
-  const [url] = await bucket.file(filename).getSignedUrl(options);
-  return url;
-}
-
-app.get('/api/gsu', async (req, res) => {
-  const filename = req.query.filename; // Extract filename from query parameter
-  const options = {
-      version: 'v4',
-      action: 'write',
-      expires: Date.now() + 15 * 60 * 1000, // URL valid for 15 minutes
-      contentType: 'video/quicktime', // Set the content type
-  };
-
-  try {
-      const signedUrl = await generateSignedUrl(filename, options); // Example function to get signed URL
-      res.json({ url: signedUrl });
-  } catch (error) {
-      console.error('Error generating signed URL:', error);
-      res.status(500).json({ error: 'Failed to generate signed URL' });
-  }
-});
-
->>>>>>> 8413f517feb5cd9ec07d13e3e5b04c1835b35f53
-// Handle the upload endpoint
-// app.post('/api/upload', upload.single('file'), async (req, res) => {
-//   if (!req.file) {
-//       return res.status(400).json({ error: 'No files uploaded' });
+//   try {
+//       const [url] = await storage
+//           .bucket(bucketName)
+//           .file(filename)
+//           .getSignedUrl(options);
+//       res.status(200).json({ url });
+//   } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ error: 'Failed to generate signed URL' });
 //   }
-
-//   const filename = req.file.originalname; // Use the original file name
-//   const blob = storage.bucket(bucketName).file(filename);
-
-//   const blobStream = blob.createWriteStream({
-//       resumable: false, // Set to false for single upload
-//       contentType: req.file.mimetype, // Set content type
-//   });
-
-//   blobStream.on('error', (err) => {
-//       console.error(err);
-//       return res.status(500).json({ error: 'Failed to upload file' });
-//   });
-
-//   blobStream.on('finish', () => {
-//       const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
-//       res.status(200).json({ id: filename, url: publicUrl }); // Return the file URL
-//   });
-
-//   blobStream.end(req.file.buffer); // End the stream with the file buffer
 // });
+
+// Handle the upload endpoint
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+  if (!req.file) {
+      return res.status(400).json({ error: 'No files uploaded' });
+  }
+
+  const filename = req.file.originalname; // Use the original file name
+  const blob = storage.bucket(bucketName).file(filename);
+
+  const blobStream = blob.createWriteStream({
+      resumable: false, // Set to false for single upload
+      contentType: req.file.mimetype, // Set content type
+  });
+
+  blobStream.on('error', (err) => {
+      console.error(err);
+      return res.status(500).json({ error: 'Failed to upload file' });
+  });
+
+  blobStream.on('finish', () => {
+      const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+      res.status(200).json({ id: filename, url: publicUrl }); // Return the file URL
+  });
+
+  blobStream.end(req.file.buffer); // End the stream with the file buffer
+});
 
 
 
