@@ -1,31 +1,33 @@
-const { Storage } = require('@google-cloud/storage');
+import { Storage } from '@google-cloud/storage';
 
-const storage = new Storage();
-const bucketName = 'veezopro_videos'; 
+const storage = new Storage({
+    projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
+    credentials: JSON.parse(process.env.GOOGLE_CLOUD_KEY),
+});
 
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: "Method not allowed" });
+    const { bucketName, fileName } = req.query;
+
+    if (!bucketName || !fileName) {
+        return res.status(400).json({ error: 'Missing bucketName or fileName in request' });
     }
 
-    const { fileName } = req.body;
-
-    if (!fileName) {
-        return res.status(400).json({ error: "File name is required" });
-    }
+    const options = {
+        version: 'v4',
+        action: 'write',
+        expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+        contentType: 'video/quicktime',  // Set your required content type here
+    };
 
     try {
-        const [url] = await storage.bucket(bucketName)
+        const [url] = await storage
+            .bucket(bucketName)
             .file(fileName)
-            .getSignedUrl({
-                action: 'write',
-                version: 'v4',
-                expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-            });
+            .getSignedUrl(options);
 
-        res.json({ url });
+        res.status(200).json({ url });
     } catch (error) {
-        console.error('Error generating signed URL:', error);
-        res.status(500).json({ error: "Could not generate signed URL" });
+        console.error('Error generating signed URL:', error.message);
+        res.status(500).json({ error: `Could not generate signed URL: ${error.message}` });
     }
 }
