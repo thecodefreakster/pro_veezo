@@ -90,6 +90,7 @@ a {
 
 body {
   margin: 0;
+  padding: 50px;
 }
 
 .body {
@@ -284,7 +285,7 @@ img {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 80vh;
   width: 100%;
   background-color: #f3f4f6;
 }
