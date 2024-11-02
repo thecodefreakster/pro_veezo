@@ -4,6 +4,7 @@ const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 const crypto = require('crypto');
 const axios = require('axios'); // Ensure you have axios imported
+const corsConfig = require('./cors-config.json');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -111,6 +112,39 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
 
 
 
+<<<<<<< HEAD
+=======
+const upload = multer({
+  storage: multer.memoryStorage(), // Store files in memory
+  limits: {
+      fileSize: 100 * 1024 * 1024, // Limit size to 100MB (adjust as needed)
+  },
+});
+
+async function generateSignedUrl(filename, options) {
+  const [url] = await bucket.file(filename).getSignedUrl(options);
+  return url;
+}
+
+app.get('/api/gsu', async (req, res) => {
+  const filename = req.query.filename; // Extract filename from query parameter
+  const options = {
+      version: 'v4',
+      action: 'write',
+      expires: Date.now() + 15 * 60 * 1000, // URL valid for 15 minutes
+      contentType: 'video/quicktime', // Set the content type
+  };
+
+  try {
+      const signedUrl = await generateSignedUrl(filename, options); // Example function to get signed URL
+      res.json({ url: signedUrl });
+  } catch (error) {
+      console.error('Error generating signed URL:', error);
+      res.status(500).json({ error: 'Failed to generate signed URL' });
+  }
+});
+
+>>>>>>> 8413f517feb5cd9ec07d13e3e5b04c1835b35f53
 // Handle the upload endpoint
 // app.post('/api/upload', upload.single('file'), async (req, res) => {
 //   if (!req.file) {
