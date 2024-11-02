@@ -113,6 +113,60 @@ function generateRandomId() {
     return Math.random().toString(36).substr(2, 9); // Random ID generation logic
 }
 
+//TEST SIGNEDURL
+// async function upload() {
+//     const fileInputValue = $("#selectedFile").val();
+//     if (fileInputValue !== "" && fileInputValue.trim() !== "") {
+//         const file = fileInput.files[0];
+        
+//         if (!file) {
+//             alert("Please select a file to upload.");
+//             return;
+//         }
+
+//         $(".headline").hide();
+//         $(".description").hide();
+//         $(".upload-button").hide();
+//         $(".headline-uploading").show();
+//         $(".description-uploading").show();
+//         $("#selectedFile").removeClass("clickListenerFile");
+
+//         try {
+//             // Step 1: Request a signed URL from your server
+//             const response = await fetch('/api/get-signed-url', {
+//                 method: 'POST',
+//                 headers: { 'Content-Type': 'application/json' },
+//                 body: JSON.stringify({ fileName: file.name })
+//             });
+            
+//             if (!response.ok) throw new Error("Failed to get signed URL.");
+//             const { url } = await response.json();
+
+//             // Step 2: Use the signed URL to upload the file
+//             const uploadResponse = await fetch(url, {
+//                 method: 'PUT',
+//                 headers: {
+//                     'Content-Type': file.type,  // Set content type if needed
+//                 },
+//                 body: file
+//             });
+
+//             if (!uploadResponse.ok) throw new Error("Upload failed.");
+
+//             // Step 3: Redirect or notify user of success
+//             const fileId = file.name.split('.')[0]; // Use the file name as ID or generate a unique ID if needed
+//             window.location.href = `https://www.veezo.pro/v_?id=${fileId}`;
+
+//         } catch (error) {
+//             console.error("Upload error:", error);
+//             alert("An error occurred during the upload. Please try again.");
+//             resetUI();
+//         }
+//     } else {
+//         alert("Please select a file to upload.");
+//     }
+// }
+
 async function upload() {
     const fileInputValue = $("#selectedFile").val();
     if (fileInputValue !== "" && fileInputValue.trim() !== "") {
@@ -145,7 +199,7 @@ async function upload() {
             const uploadResponse = await fetch(url, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': file.type,  // Set content type if needed
+                    'Content-Type': file.type || 'application/octet-stream', // Use 'application/octet-stream' if unsure
                 },
                 body: file
             });
@@ -153,7 +207,7 @@ async function upload() {
             if (!uploadResponse.ok) throw new Error("Upload failed.");
 
             // Step 3: Redirect or notify user of success
-            const fileId = file.name.split('.')[0]; // Use the file name as ID or generate a unique ID if needed
+            const fileId = generateId(file.name); // Generate a unique ID if needed
             window.location.href = `https://www.veezo.pro/v_?id=${fileId}`;
 
         } catch (error) {
@@ -165,6 +219,7 @@ async function upload() {
         alert("Please select a file to upload.");
     }
 }
+
 
 // Helper function to reset the UI on error
 function resetUI() {
