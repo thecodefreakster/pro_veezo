@@ -1,7 +1,7 @@
 const { Storage } = require('@google-cloud/storage');
 
-const storage = new Storage({ keyFilename: 'path/to/videoSubmitKey.json' });
-const bucketName = 'veezopro_videos';
+const storage = new Storage();
+const bucketName = 'veezopro_videos'; 
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
