@@ -60,7 +60,7 @@
         </a>
     </div>
     <div class="content">
-        <video id="videoPlayer" class="videoContainer" autoplay controls>
+        <video autoplay controls id="videoPlayer" class="videoContainer">
             <source id="videoSource" src="" type="video/mp4">
             Your browser does not support the video tag.
         </video>
@@ -91,9 +91,9 @@
 
         function copyLinkToClipboard() {
             const link = window.location.href;
-            navigator.clipboard.writeText(link)
-                .then(() => alert('Link copied to clipboard!'))
-                .catch((err) => console.error('Failed to copy link: ', err));
+            // navigator.clipboard.writeText(link)
+            //     .then(() => alert('Link copied to clipboard!'))
+            //     .catch((err) => console.error('Failed to copy link: ', err));
         }
     </script>
 </body>
