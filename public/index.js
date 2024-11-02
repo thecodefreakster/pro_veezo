@@ -199,7 +199,7 @@ async function upload() {
             const uploadResponse = await fetch(url, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': file.type || 'application/octet-stream', // Use 'application/octet-stream' if unsure
+                    'Content-Type': file.type || 'video/quicktime', // Use 'application/octet-stream' if unsure
                 },
                 body: file
             });
