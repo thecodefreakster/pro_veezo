@@ -171,7 +171,7 @@ async function upload() {
     const fileInputValue = $("#selectedFile").val();
     if (fileInputValue !== "" && fileInputValue.trim() !== "") {
         const file = fileInput.files[0];
-        
+
         if (!file) {
             alert("Please select a file to upload.");
             return;
@@ -185,15 +185,22 @@ async function upload() {
         $("#selectedFile").removeClass("clickListenerFile");
 
         try {
+            //gsu
+            const url = await GetSignedUrl(file.name);
+            const response = await fetch(url, {
+                method: 'PUT',
+                body: file,
+              });
+      
             // Step 1: Request a signed URL from your server
-            const response = await fetch('/api/get-signed-url', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fileName: file.name })
-            });
+            // const response = await fetch('/api/get-signed-url', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ fileName: file.name })
+            // });
             
             if (!response.ok) throw new Error(`Failed to get signed URL. ${response.Error}`);
-            const { url } = await response.json();
+            //const { url } = await response.json();
 
             // Step 2: Use the signed URL to upload the file
             const uploadResponse = await fetch(url, {
