@@ -21,6 +21,9 @@
                     Upload
                 </div>
             </a>
+            <div class="upload-button-nav" onclick="copyLinkToClipboard()">
+                Copy Link
+            </div>
             <div class="legal">
                 <div class="legal-menu">
                     <a href="javascript:void(0);" class="icon" onclick="toggleMobileNavbar()">
@@ -84,6 +87,13 @@
             document.getElementById('videoPlayer').load();
         } else {
             alert('No video ID provided.');
+        }
+
+        function copyLinkToClipboard() {
+            const link = window.location.href;
+            navigator.clipboard.writeText(link)
+                .then(() => alert('Link copied to clipboard!'))
+                .catch((err) => console.error('Failed to copy link: ', err));
         }
     </script>
 </body>
