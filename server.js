@@ -35,25 +35,6 @@ function generateRandomId() {
   return crypto.randomBytes(3).toString('hex');
 }
 
-app.post('/api/get-signed-url', async (req, res) => {
-    const { fileName } = req.body;
-
-    try {
-        const [url] = await storage.bucket(bucketName)
-            .file(fileName)
-            .getSignedUrl({
-                action: 'write',
-                version: 'v4',
-                expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-            });
-
-        res.json({ url });
-    } catch (error) {
-        console.error('Error generating signed URL:', error);
-        res.status(500).send("Could not generate signed URL");
-    }
-});
-
 // Upload endpoint
 // app.post('/api/upload', upload.single('file'), async (req, res, next) => {
 //   if (!req.file) {
