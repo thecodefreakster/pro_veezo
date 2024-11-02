@@ -280,6 +280,21 @@ img {
   max-height: 100%;
 }
 
+.videoContainer {
+  display: flex;
+  justify-content: center;
+  /* Center horizontally */
+  align-items: center;
+  /* Center vertically */
+  height: 100vh;
+  /* Full viewport height */
+  width: 100%;
+  /* Full width */
+  background-color: #f3f4f6;
+  /* Optional: add a background color */
+}
+
+
 @media only screen and (min-width: 768px) {
   .legal-item {
     display: initial;
