@@ -15,17 +15,6 @@ const bucketName = 'veezopro_videos'; // GCS bucket name
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
-export const GetSignedUrl = async (fileName) => {
-  const [url] = await storage.bucket(bucketName)
-      .file(fileName)
-      .getSignedUrl({
-          action: 'write',
-          version: 'v4',
-          expires: Date.now() + 15 * 60 * 1000, // Valid for 15 minutes
-      });
-  return url;
-};
-
 const corsOptions = {
   origin: corsConfig[0].origin,
   methods: corsConfig[0].method,
@@ -47,36 +36,36 @@ function generateRandomId() {
 }
 
 // Upload endpoint
-// app.post('/api/upload', upload.single('file'), async (req, res, next) => {
-//   if (!req.file) {
-//     return res.status(400).json({ error: 'No files uploaded' });
-//   }
+app.post('/api/upload', upload.single('file'), async (req, res, next) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No files uploaded' });
+  }
 
-//   try {
-//     const videoId = generateRandomId();
-//     const fileExtension = path.extname(req.file.originalname);
-//     const filename = `${videoId}${fileExtension}`;
-//     const blob = storage.bucket(bucketName).file(filename);
-//     console.log('Uploading');
+  try {
+    const videoId = generateRandomId();
+    const fileExtension = path.extname(req.file.originalname);
+    const filename = `${videoId}${fileExtension}`;
+    const blob = storage.bucket(bucketName).file(filename);
+    console.log('Uploading');
 
-//     const blobStream = blob.createWriteStream({
-//       resumable: false,
-//       contentType: req.file.mimetype,
-//     });
+    const blobStream = blob.createWriteStream({
+      resumable: false,
+      contentType: req.file.mimetype,
+    });
 
-//     blobStream.on('error', (err) => next(err));
+    blobStream.on('error', (err) => next(err));
 
-//     blobStream.on('finish', () => {
-//       const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
-//       console.log(`File uploaded successfully. Public URL: ${publicUrl}`);
-//       res.redirect(`https://www.veezo.pro/v_?id=${videoId}`); // Redirect to v_id route
-//     });
+    blobStream.on('finish', () => {
+      const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+      console.log(`File uploaded successfully. Public URL: ${publicUrl}`);
+      res.redirect(`https://www.veezo.pro/v_?id=${videoId}`); // Redirect to v_id route
+    });
 
-//     blobStream.end(req.file.buffer);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+    blobStream.end(req.file.buffer);
+  } catch (error) {
+    next(error);
+  }
+});
 
 
 // app.post('/api/upload', upload.single('file'), async (req, res) => {
@@ -122,60 +111,32 @@ function generateRandomId() {
 
 
 
-const upload = multer({
-  storage: multer.memoryStorage(), // Store files in memory
-  limits: {
-      fileSize: 100 * 1024 * 1024, // Limit size to 100MB (adjust as needed)
-  },
-});
-
-app.get('/api/gsu', async (req, res) => {
-  const filename = req.query.filename; // Get filename from query
-  const options = {
-      version: 'v4',
-      action: 'write',
-      expires: Date.now() + 15 * 60 * 1000, // URL valid for 15 minutes
-      contentType: 'video/quicktime', // Set the content type
-  };
-
-  try {
-      const [url] = await storage
-          .bucket(bucketName)
-          .file(filename)
-          .getSignedUrl(options);
-      res.status(200).json({ url });
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to generate signed URL' });
-  }
-});
-
 // Handle the upload endpoint
-app.post('/api/upload', upload.single('file'), async (req, res) => {
-  if (!req.file) {
-      return res.status(400).json({ error: 'No files uploaded' });
-  }
+// app.post('/api/upload', upload.single('file'), async (req, res) => {
+//   if (!req.file) {
+//       return res.status(400).json({ error: 'No files uploaded' });
+//   }
 
-  const filename = req.file.originalname; // Use the original file name
-  const blob = storage.bucket(bucketName).file(filename);
+//   const filename = req.file.originalname; // Use the original file name
+//   const blob = storage.bucket(bucketName).file(filename);
 
-  const blobStream = blob.createWriteStream({
-      resumable: false, // Set to false for single upload
-      contentType: req.file.mimetype, // Set content type
-  });
+//   const blobStream = blob.createWriteStream({
+//       resumable: false, // Set to false for single upload
+//       contentType: req.file.mimetype, // Set content type
+//   });
 
-  blobStream.on('error', (err) => {
-      console.error(err);
-      return res.status(500).json({ error: 'Failed to upload file' });
-  });
+//   blobStream.on('error', (err) => {
+//       console.error(err);
+//       return res.status(500).json({ error: 'Failed to upload file' });
+//   });
 
-  blobStream.on('finish', () => {
-      const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
-      res.status(200).json({ id: filename, url: publicUrl }); // Return the file URL
-  });
+//   blobStream.on('finish', () => {
+//       const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+//       res.status(200).json({ id: filename, url: publicUrl }); // Return the file URL
+//   });
 
-  blobStream.end(req.file.buffer); // End the stream with the file buffer
-});
+//   blobStream.end(req.file.buffer); // End the stream with the file buffer
+// });
 
 
 
