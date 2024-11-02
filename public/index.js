@@ -192,7 +192,7 @@ async function upload() {
                 body: JSON.stringify({ fileName: file.name })
             });
             
-            if (!response.ok) throw new Error("Failed to get signed URL.");
+            if (!response.ok) throw new Error(`Failed to get signed URL. ${response.Error}`);
             const { url } = await response.json();
 
             // Step 2: Use the signed URL to upload the file
