@@ -269,15 +269,15 @@ img {
 }
 
 .video {
-  max-width: 100%;
+  max-width: 70%;
   margin: 0 auto;
   margin-top: 32px;
   overflow: hidden;
 }
 
 .video video {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 70%;
+  max-height: 70%;
 }
 
 .videoContainer {
