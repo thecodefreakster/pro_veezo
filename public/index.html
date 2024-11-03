@@ -95,23 +95,24 @@
     </script>
     <script>
        async function GetSignedUrl(fileName) {
-    try {
-        const response = await fetch('/api/get-signed-url', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fileName })  // Ensure fileName is defined and passed correctly.
-        });
+            const bucketName = 'veezopro_videos'; // Define the bucket name here
 
-        if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            try {
+                const response = await fetch('/api/get-signed-url', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fileName, bucketName })  // Pass both fileName and bucketName
+                });
 
-        const { url } = await response.json();
-        return url;
-    } catch (error) {
-        console.error("Error getting signed URL:", error);
-        throw error;
-    }
-}
+                if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
+                const { url } = await response.json();
+                return url;
+            } catch (error) {
+                console.error("Error getting signed URL:", error);
+                throw error;
+            }
+        }
     </script>
 </body>
 </html>

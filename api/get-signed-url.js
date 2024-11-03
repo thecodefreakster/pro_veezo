@@ -6,7 +6,7 @@ const storage = new Storage({
 });
 
 export default async function GetSignedUrl(req, res) {
-    const { bucketName, fileName } = req.query;
+    const { bucketName, fileName } = req.body;
 
     if (!bucketName || !fileName) {
         return res.status(400).json({ error: 'Missing bucketName or fileName in request' });
