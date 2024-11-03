@@ -94,23 +94,25 @@
         }
     </script>
     <script>
-        async function GetSignedUrl(fileName) {
-    try {
-        const response = await fetch('/api/get-signed-url', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fileName })
-        });
+       async function GetSignedUrl(fileName) {
+        try {
+            const response = await fetch('/api/get-signed-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fileName })
+            });
 
-        if (!response.ok) throw new Error("Failed to obtain signed URL.");
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
 
-        const { url } = await response.json();
-        return url;
-        } catch (error) {
-            console.error("Error getting signed URL:", error);
-            throw error;
+            const { url } = await response.json();
+            return url;
+            } catch (error) {
+                console.error("Error getting signed URL:", error);
+                throw error;
+            }
         }
-    }
     </script>
 </body>
 </html>

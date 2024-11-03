@@ -68,26 +68,40 @@ function generateRandomId() {
 // });
 
 app.post('/api/get-signed-url', async (req, res) => {
-  const { fileName } = req.body;
-  if (!fileName) {
-      return res.status(400).json({ error: 'File name is required' });
-  }
-
-  const file = storage.bucket(bucketName).file(fileName);
-  const expiresIn = 60 * 60; // URL valid for 1 hour
-
   try {
-      const [url] = await file.getSignedUrl({
-          action: 'write',
-          expires: Date.now() + expiresIn * 1000,
-          contentType: 'video/*' // Adjust as per requirements
-      });
-      res.status(200).json({ url });
+      const { fileName } = req.body;
+      console.log("Received fileName:", fileName);
+
+      const signedUrl = await generateSignedUrl(fileName);
+      res.json({ url: signedUrl });
   } catch (error) {
-      console.error('Error generating signed URL:', error);
-      res.status(500).json({ error: 'Failed to generate signed URL' });
+      console.error("Detailed error generating signed URL:", error);
+      res.status(500).json({ error: "Server error occurred." });
   }
 });
+
+
+// app.post('/api/get-signed-url', async (req, res) => {
+//   const { fileName } = req.body;
+//   if (!fileName) {
+//       return res.status(400).json({ error: 'File name is required' });
+//   }
+
+//   const file = storage.bucket(bucketName).file(fileName);
+//   const expiresIn = 60 * 60; // URL valid for 1 hour
+
+//   try {
+//       const [url] = await file.getSignedUrl({
+//           action: 'write',
+//           expires: Date.now() + expiresIn * 1000,
+//           contentType: 'video/*' // Adjust as per requirements
+//       });
+//       res.status(200).json({ url });
+//   } catch (error) {
+//       console.error('Error generating signed URL:', error);
+//       res.status(500).json({ error: 'Failed to generate signed URL' });
+//   }
+// });
 
 // Handle the upload endpoint
 app.post('/api/upload', upload.single('file'), async (req, res) => {
