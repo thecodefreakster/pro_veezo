@@ -70,13 +70,17 @@ function generateRandomId() {
 app.post('/api/get-signed-url', async (req, res) => {
   try {
       const { fileName } = req.body;
-      console.log("Received fileName:", fileName);
+      if (!fileName) {
+          return res.status(400).json({ error: "File name is required." });
+      }
 
+      // Call to storage service to get signed URL
       const signedUrl = await generateSignedUrl(fileName);
+
       res.json({ url: signedUrl });
   } catch (error) {
-      console.error("Detailed error generating signed URL:", error);
-      res.status(500).json({ error: "Server error occurred." });
+      console.error("Error generating signed URL:", error);
+      res.status(500).json({ error: "Failed to generate signed URL." });
   }
 });
 
