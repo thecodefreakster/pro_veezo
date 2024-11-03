@@ -24,7 +24,7 @@ body {
 .container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 90vh;
 }
 
 .legal-area {
@@ -330,7 +330,6 @@ img {
 
 footer {
   flex: 0 0 10%;
-  display: flex;
   padding: 20px 0;
   text-align: center;
   font-size: 17px;
