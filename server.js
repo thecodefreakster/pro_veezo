@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 // Google Cloud Storage setup
 // const storage = new Storage();
 const storage = new Storage({
+  projectId: 'veezopro',
   credentials: JSON.parse(process.env.SERVICE_ACCOUNT_KEY),
 });
 const bucketName = 'veezopro_videos'; // GCS bucket name
@@ -82,7 +83,7 @@ function generateRandomId() {
 
 app.post('/api/get-signed-url', async (req, res) => {
   const { fileName } = req.body;
-
+  console.log(`test-gsu`);
   if (!fileName) {
       return res.status(400).send({ error: 'File name is required.' });
   }
@@ -92,11 +93,11 @@ app.post('/api/get-signed-url', async (req, res) => {
       version: 'v4',
       action: 'write',
       expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-      contentType: 'application/octet-stream'
   };
 
   try {
       const [url] = await file.getSignedUrl(options);
+      console.log(`test-gsu url ${url}`);
       res.status(200).send({ url });
   } catch (error) {
       console.error('Error generating signed URL:', error.message);
