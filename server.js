@@ -9,7 +9,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Google Cloud Storage setup
-const storage = new Storage();
+// const storage = new Storage();
+const storage = new Storage({
+  credentials: JSON.parse(process.env.SERVICE_ACCOUNT_KEY),
+});
 const bucketName = 'veezopro_videos'; // GCS bucket name
 
 app.use(express.json({ limit: '100mb' }));
@@ -96,7 +99,7 @@ app.post('/api/get-signed-url', async (req, res) => {
       const [url] = await file.getSignedUrl(options);
       res.status(200).send({ url });
   } catch (error) {
-      console.error('Error generating signed URL:', error);
+      console.error('Error generating signed URL:', error.message);
       res.status(500).send({ error: 'Could not generate signed URL.' });
   }
 });
