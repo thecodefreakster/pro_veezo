@@ -30,3 +30,18 @@ export default async function GetSignedUrl(req, res) {
         res.status(500).json({ error: `Could not generate signed URL: ${error.message}` });
     }
 }
+
+export const SetCors = async () => {
+    const storage = new Storage({
+        projectId: 'veezopro',
+        credentials: JSON.parse(process.env.SERVICE_ACCOUNT_KEY),
+    });
+    await storage.bucket('veezopro_videos').setCorsConfiguration([
+        {
+            maxAgeSeconds: 3600,
+            method: ['GET', 'PUT'],
+            origin: ['*'],
+            responseHeader: ['Content-Type'],
+        },
+    ]);
+}
