@@ -4,6 +4,7 @@ const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 const crypto = require('crypto');
 const axios = require('axios'); // Ensure you have axios imported
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,9 +17,9 @@ const storage = new Storage({
 });
 const bucketName = 'veezopro_videos'; // GCS bucket name
 
-app.use(express.json({ limit: '100mb' }));
-app.use(express.bodyParser({limit: '100mb'}));
-app.use(express.urlencoded({ limit: '100mb', extended: true }));
+app.use(express.json());
+app.use(express.bodyParser());
+// app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 const corsOptions = {
   origin: '*', // Adjust this to your front-end URL
@@ -40,9 +41,9 @@ app.use(cors(corsOptions));
 // app.use(cors(corsOptions));
 
 // Multer setup
-// const upload = multer({
-//   storage: multer.memoryStorage(), // Keep files in memory temporarily
-// });
+const upload = multer({
+  storage: multer.memoryStorage(), // Keep files in memory temporarily
+});
 
 // Helper to generate random IDs
 function generateRandomId() {
@@ -82,10 +83,11 @@ function generateRandomId() {
 // });
 
 app.post('/api/get-signed-url', async (req, res) => {
+  console.log(`postGSU ${req.body}`); // Log the request body for debugging
   const { fileName } = req.body;
-  console.log(`test-gsu`);
+
   if (!fileName) {
-      return res.status(400).send({ error: 'File name is required.' });
+    return res.status(400).send({ error: 'File name is required.' });
   }
 
   const file = storage.bucket(bucketName).file(fileName);
@@ -153,19 +155,6 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
   });
 
   blobStream.end(req.file.buffer); // End the stream with the file buffer
-});
-
-app.post('/api/get-signed-url', async (req, res) => {
-  const { fileName } = req.body;
-  const options = {
-      version: 'v4',
-      action: 'write',
-      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-      contentType: 'application/octet-stream', // Change this if needed
-  };
-
-  const [url] = await storage.bucket(bucketName).file(fileName).getSignedUrl(options);
-  res.json({ url });
 });
 
 app.get('/v_', (req, res) => {
