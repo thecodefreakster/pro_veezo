@@ -95,13 +95,13 @@
     </script>
     <script>
        async function GetSignedUrl(fileName) {
-            const bucketName = 'veezopro_videos'; // Define the bucket name here
+            const bucketName = 'veezopro_videos';
 
             try {
                 const response = await fetch('/api/get-signed-url', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileName, bucketName })  // Pass both fileName and bucketName
+                    body: JSON.stringify({ fileName, bucketName })
                 });
 
                 if (!response.ok) throw new Error(`Server error: ${response.status}`);

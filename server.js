@@ -73,30 +73,30 @@ function generateRandomId() {
 //   }
 // });
 
-app.post('/api/get-signed-url', async (req, res) => {
-  console.log(`postGSU ${req.body}`); // Log the request body for debugging
-  const { fileName } = req.body;
+// app.post('/api/get-signed-url', async (req, res) => {
+//   console.log(`postGSU ${req.body}`); // Log the request body for debugging
+//   const { fileName } = req.body;
 
-  if (!fileName) {
-    return res.status(400).send({ error: 'File name is required.' });
-  }
+//   if (!fileName) {
+//     return res.status(400).send({ error: 'File name is required.' });
+//   }
 
-  const file = storage.bucket(bucketName).file(fileName);
-  const options = {
-      version: 'v4',
-      action: 'write',
-      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-  };
+//   const file = storage.bucket(bucketName).file(fileName);
+//   const options = {
+//       version: 'v4',
+//       action: 'write',
+//       expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+//   };
 
-  try {
-      const [url] = await file.getSignedUrl(options);
-      console.log(`test-gsu url ${url}`);
-      res.status(200).send({ url });
-  } catch (error) {
-      console.error('Error generating signed URL:', error.message);
-      res.status(500).send({ error: 'Could not generate signed URL.' });
-  }
-});
+//   try {
+//       const [url] = await file.getSignedUrl(options);
+//       console.log(`test-gsu url ${url}`);
+//       res.status(200).send({ url });
+//   } catch (error) {
+//       console.error('Error generating signed URL:', error.message);
+//       res.status(500).send({ error: 'Could not generate signed URL.' });
+//   }
+// });
 
 
 // app.post('/api/get-signed-url', async (req, res) => {
