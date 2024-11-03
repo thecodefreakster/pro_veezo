@@ -313,3 +313,25 @@ footer {
   bottom: 0;
   width: 100%;
 }
+
+
+.c-video {
+  max-width: 1024px;
+  margin-top: 12px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.c-video-inner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 720px;
+}
+
+.v-player {
+  border-radius: 12px;
+  max-height: calc(100vh - 64px);
+}

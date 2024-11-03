@@ -269,6 +269,73 @@ function handleClick() {
 //     }
 // }
 
+
+///BESTTTTTTTT
+// async function upload() {
+//     const file = fileInput.files[0];
+
+//     if (!file) {
+//         alert("Please select a file to upload.");
+//         return;
+//     }
+
+//     // Hide initial UI elements and show uploading UI
+//     $(".headline, .description, .upload-button").hide();
+//     $(".headline-uploading, .description-uploading").show();
+
+//     // Generate a random ID to use as the new filename in GCS
+//     const fileId = generateRandomId();
+//     const newFileName = `${fileId}.mov`; // Use generated ID with .mov extension
+
+//     try {
+//         // Get a signed URL for the new file name
+//         const signedUrl = await GetSignedUrl(newFileName);
+
+//         // Initialize a new XMLHttpRequest for tracking progress
+//         const xhr = new XMLHttpRequest();
+
+//         // Set up the progress event listener
+//         xhr.upload.addEventListener("progress", function(evt) {
+//             if (evt.lengthComputable) {
+//                 const percentComplete = Math.round((evt.loaded / evt.total) * 100);
+//                 $(".description-uploading").html(`${percentComplete}% complete.`);
+                
+//                 if (percentComplete === 100) {
+//                     $(".description-uploading").html("Finalizing...");
+//                 }
+//             }
+//         }, false);
+
+//         // Set up success and error callbacks
+//         xhr.onload = function() {
+//             if (xhr.status === 200) {
+//                 // Redirect to the URL with only the generated ID
+//                 window.location.href = `https://www.veezo.pro/v_?id=${fileId}`;
+//             } else {
+//                 alert("An error occurred during the upload. Please try again.");
+//                 resetUI();
+//             }
+//         };
+
+//         xhr.onerror = function() {
+//             console.error("Upload error:", xhr.statusText);
+//             alert("An error occurred during the upload. Please try again.");
+//             resetUI();
+//         };
+
+//         // Open a PUT request with the signed URL
+//         xhr.open("PUT", signedUrl, true);
+//         xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
+
+//         // Send the file data
+//         xhr.send(file);
+//     } catch (error) {
+//         console.error("Upload error:", error);
+//         alert("An error occurred during the upload. Please try again.");
+//         resetUI();
+//     }
+// }
+
 async function upload() {
     const file = fileInput.files[0];
 
@@ -276,10 +343,6 @@ async function upload() {
         alert("Please select a file to upload.");
         return;
     }
-
-    // Hide initial UI elements and show uploading UI
-    $(".headline, .description, .upload-button").hide();
-    $(".headline-uploading, .description-uploading").show();
 
     // Generate a random ID to use as the new filename in GCS
     const fileId = generateRandomId();
@@ -292,20 +355,20 @@ async function upload() {
         // Initialize a new XMLHttpRequest for tracking progress
         const xhr = new XMLHttpRequest();
 
-        // Set up the progress event listener
-        xhr.upload.addEventListener("progress", function(evt) {
+        // Set up the progress event listener to update the button text with progress percentage
+        xhr.upload.addEventListener("progress", function (evt) {
             if (evt.lengthComputable) {
                 const percentComplete = Math.round((evt.loaded / evt.total) * 100);
-                $(".description-uploading").html(`${percentComplete}% complete.`);
+                $(".upload-button").text(`${percentComplete}% complete`);
                 
                 if (percentComplete === 100) {
-                    $(".description-uploading").html("Finalizing...");
+                    $(".upload-button").text("Finalizing...");
                 }
             }
         }, false);
 
         // Set up success and error callbacks
-        xhr.onload = function() {
+        xhr.onload = function () {
             if (xhr.status === 200) {
                 // Redirect to the URL with only the generated ID
                 window.location.href = `https://www.veezo.pro/v_?id=${fileId}`;
@@ -315,7 +378,7 @@ async function upload() {
             }
         };
 
-        xhr.onerror = function() {
+        xhr.onerror = function () {
             console.error("Upload error:", xhr.statusText);
             alert("An error occurred during the upload. Please try again.");
             resetUI();
@@ -346,4 +409,5 @@ function resetUI() {
     $(".upload-button").show();
     $(".headline-uploading").hide();
     $(".description-uploading").hide();
+    $(".upload-button").text("Browse");
 }
