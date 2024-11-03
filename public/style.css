@@ -336,3 +336,11 @@ footer {
   border-radius: 12px;
   max-height: calc(100vh - 64px);
 }
+
+.ads {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}

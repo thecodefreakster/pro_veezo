@@ -28,33 +28,20 @@
                     </a>
                 </div> -->
                 <div class="ads">
-                    <a href="/">
+                    <a href="/advertise">
                         Advertise
                     </a>
                 </div>
             </div>
         </div>
     </div>
-    <div class="body">
-        <form action="/api/upload" method="POST" id="form">
-            <input name="file" type="file" id="selectedFile" class="clickListenerFile" accept="video/*" style="display: none;" />
-        </form>
-        <div class="main-area">
-            <div class="headline">
-                Free and simple video hosting
-            </div>
-            <div class="description">
-                Just select or drop a file.
-            </div>
-            <div class="headline-uploading">
-                Uploading...
-            </div>
-            <div class="description-uploading">
-                0% complete.
-            </div>
-            <div class="upload-button" onclick="handleClick();">
-                Browse
-            </div>
+    <div class="ads">
+        <div>
+            <h3>Advertise on Videy</h3>
+            <h5>Reach tens of millions of unique visitors.</h5>
+        </div>
+        <div>
+            <h3>advertise@veezo.pro</h3>
         </div>
     </div>
     <footer>
@@ -69,37 +56,5 @@
         </div>
     </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
-    <script src="./index.js"></script>
-    <script>
-        function toggleMobileNavbar() {
-            var x = document.getElementById("mobile-menu");
-            if (x.style.display === "flex") {
-                x.style.display = "none";
-            } else {
-                x.style.display = "flex";
-            }
-        }
-    </script>
-    <script>
-       async function GetSignedUrl(fileName) {
-            const bucketName = 'veezopro_videos';
-
-            try {
-                const response = await fetch('/api/get-signed-url', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileName, bucketName })
-                });
-
-                if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-                const { url } = await response.json();
-                return url;
-            } catch (error) {
-                console.error("Error getting signed URL:", error);
-                throw error;
-            }
-        }
-    </script>
 </body>
 </html>

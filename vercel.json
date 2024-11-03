@@ -1,6 +1,8 @@
 {
     "rewrites": [
         { "source": "/api/(.*)", "destination": "/api/$1" },
-        { "source": "/v_", "destination": "/video.html" }
+        { "source": "/v_", "destination": "/video.html" },
+        { "source": "/advertise", "destination": "/pages/advertise.html" },
+        { "source": "/advertise1", "destination": "/advertise.html" }
     ]
 }
