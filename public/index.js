@@ -176,7 +176,8 @@ async function upload() {
         // Set up success and error callbacks
         xhr.onload = function() {
             if (xhr.status === 200) {
-                const fileId = generateId(file.name);
+                // const fileId = generateId(file.name);
+                const fileId = generateRandomId();
                 // Redirect to the simplified URL with only the generated ID
                 window.location.href = `https://www.veezo.pro/v_?id=${fileId}`;
             } else {
