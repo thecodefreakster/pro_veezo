@@ -41,7 +41,7 @@ export const SetCors = async () => {
             maxAgeSeconds: 3600,
             method: ['GET', 'PUT'],
             origin: ['*'],
-            responseHeader: ['Content-Type'],
+            responseHeader: ['*'],
         },
     ]);
 }
