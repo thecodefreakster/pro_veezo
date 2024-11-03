@@ -1,8 +1,8 @@
 import { Storage } from '@google-cloud/storage';
 
 const storage = new Storage({
-    projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-    credentials: JSON.parse(process.env.GOOGLE_CLOUD_KEY),
+    projectId: 'veezopro',
+    credentials: JSON.parse(process.env.SERVICE_ACCOUNT_KEY),
 });
 
 export default async function GetSignedUrl(req, res) {
