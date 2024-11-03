@@ -17,14 +17,23 @@ app.use(express.bodyParser({limit: '100mb'}));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 const corsOptions = {
-  origin: corsConfig[0].origin,
-  methods: corsConfig[0].method,
-  allowedHeaders: corsConfig[0].responseHeader,
-  maxAge: corsConfig[0].maxAgeSeconds
+  origin: '*', // Adjust this to your front-end URL
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
+  maxAge: 86400 // 24 hours
 };
 
-// Use CORS middleware
 app.use(cors(corsOptions));
+
+// const corsOptions = {
+//   origin: corsConfig[0].origin,
+//   methods: corsConfig[0].method,
+//   allowedHeaders: corsConfig[0].responseHeader,
+//   maxAge: corsConfig[0].maxAgeSeconds
+// };
+
+// // Use CORS middleware
+// app.use(cors(corsOptions));
 
 // Multer setup
 // const upload = multer({
@@ -72,23 +81,23 @@ app.post('/api/get-signed-url', async (req, res) => {
   const { fileName } = req.body;
 
   if (!fileName) {
-      return res.status(400).json({ error: 'File name is required.' });
+      return res.status(400).send({ error: 'File name is required.' });
   }
 
+  const file = storage.bucket(bucketName).file(fileName);
+  const options = {
+      version: 'v4',
+      action: 'write',
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+      contentType: 'application/octet-stream'
+  };
+
   try {
-      const options = {
-          version: 'v4',
-          action: 'write',
-          expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-          contentType: 'application/octet-stream',
-      };
-
-      const [url] = await storage.bucket(bucketName).file(fileName).getSignedUrl(options);
-
-      res.json({ url });
+      const [url] = await file.getSignedUrl(options);
+      res.status(200).send({ url });
   } catch (error) {
       console.error('Error generating signed URL:', error);
-      res.status(500).json({ error: 'Failed to generate signed URL.' });
+      res.status(500).send({ error: 'Could not generate signed URL.' });
   }
 });
 
@@ -142,6 +151,18 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
   blobStream.end(req.file.buffer); // End the stream with the file buffer
 });
 
+app.post('/api/get-signed-url', async (req, res) => {
+  const { fileName } = req.body;
+  const options = {
+      version: 'v4',
+      action: 'write',
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+      contentType: 'application/octet-stream', // Change this if needed
+  };
+
+  const [url] = await storage.bucket(bucketName).file(fileName).getSignedUrl(options);
+  res.json({ url });
+});
 
 app.get('/v_', (req, res) => {
   const fileId = req.query.id;
