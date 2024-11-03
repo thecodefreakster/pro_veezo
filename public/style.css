@@ -1,5 +1,30 @@
-html {
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  /* Prevent scrolling */
   font-family: source sans pro, sans-serif;
+}
+
+.body {
+  flex: 1 0 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .legal-area {
@@ -69,7 +94,7 @@ a {
 
 .upload-button-nav {
   background-color: #dfdfdf;
-  border-radius: 10px;
+  border-radius: 20px;
   font-size: 16px;
   margin-left: 24px;
   color: #424242;
@@ -143,18 +168,17 @@ img {
 }
 
 .nav-outer {
+  flex: 0 0 10%;
   display: flex;
   height: 52px;
   background-color: #fff;
-  border-bottom: 1px solid #e0e0e0;
   padding: 0 24px;
   align-items: center;
 }
 
 .nav-inner {
-  max-width: 100%;
   margin: 0 auto;
-  width: 1300px;
+  width: 80%;
   display: flex;
   align-items: center;
 }
@@ -305,14 +329,15 @@ img {
 }
 
 footer {
+  flex: 0 0 10%;
+  display: flex;
   padding: 20px 0;
   text-align: center;
   font-size: 17px;
   color: #666;
-  bottom: 0;
-  width: 100%;
+  align-items: center;
+  justify-content: center;
 }
-
 
 .c-video {
   max-width: 100%;
