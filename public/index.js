@@ -46,11 +46,6 @@ function handleClick() {
     }
 }
 
-// Helper function to generate a unique ID (or you could use a UUID library)
-function generateId(filename) {
-    return filename.split('.')[0] + '_' + Math.random().toString(36).substr(2, 9);
-}
-
 // UPLOAD SIGN
 // function upload() {
 //     var fileInputValue = $("#selectedFile").val();
