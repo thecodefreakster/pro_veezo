@@ -5,7 +5,7 @@ const storage = new Storage({
     credentials: JSON.parse(process.env.GOOGLE_CLOUD_KEY),
 });
 
-export default async function handler(req, res) {
+export default async function GetSignedUrl(req, res) {
     const { bucketName, fileName } = req.query;
 
     if (!bucketName || !fileName) {
