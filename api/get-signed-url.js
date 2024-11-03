@@ -39,9 +39,9 @@ export const SetCors = async () => {
     await storage.bucket('veezopro_videos').setCorsConfiguration([
         {
             maxAgeSeconds: 3600,
-            method: ['GET', 'PUT'],
-            origin: ['*'],
-            responseHeader: ['*'],
+            method: ["GET", "HEAD", "PUT", "POST", "DELETE", "OPTIONS"],
+            origin: ["https://veezo.pro"],
+            responseHeader: ["Content-Type", "Authorization"]
         },
     ]);
 }

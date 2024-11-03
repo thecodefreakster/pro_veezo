@@ -22,23 +22,14 @@ app.use(express.bodyParser());
 // app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 const corsOptions = {
-  origin: '*', // Adjust this to your front-end URL
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
-  maxAge: 86400 // 24 hours
+  origin: corsConfig[0].origin,
+  methods: corsConfig[0].method,
+  allowedHeaders: corsConfig[0].responseHeader,
+  maxAge: corsConfig[0].maxAgeSeconds
 };
 
+// Use CORS middleware
 app.use(cors(corsOptions));
-
-// const corsOptions = {
-//   origin: corsConfig[0].origin,
-//   methods: corsConfig[0].method,
-//   allowedHeaders: corsConfig[0].responseHeader,
-//   maxAge: corsConfig[0].maxAgeSeconds
-// };
-
-// // Use CORS middleware
-// app.use(cors(corsOptions));
 
 // Multer setup
 const upload = multer({
