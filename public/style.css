@@ -184,10 +184,10 @@ img {
 }
 
 .upload-button {
-  width: 120px;
+  width: 220px;
   height: 40px;
   background-color: #1a1a1a;
-  border-radius: 220px;
+  border-radius: 20px;
   font-weight: 500;
   margin: 0 auto;
   display: flex;
