@@ -177,9 +177,9 @@ img {
 }
 
 .nav-outer {
-  flex: 0 0 10%;
+  /* flex: 0 0 10%; */
   display: flex;
-  height: 52px;
+  height: 35px;
   background-color: #fff;
   margin-top: 10px;
   padding: 0 24px;
