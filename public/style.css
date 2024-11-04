@@ -307,6 +307,7 @@ img {
 
   #videoPlayer {
     margin: 0 0 16px 0;
+    height: 80vh;
   }
 }
 
