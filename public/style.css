@@ -356,8 +356,8 @@ footer {
 }
 
 .v-player {
-  border-radius: 12px;
-  max-height: calc(100vh - 64px);
+  border-radius: 15px;
+  max-height: calc(80vh - 64px);
 }
 
 .ads {
