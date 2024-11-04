@@ -181,7 +181,7 @@ img {
   display: flex;
   height: 35px;
   background-color: #fff;
-  margin-top: 10px;
+  margin: 10px 0;
   padding: 0 24px;
   align-items: center;
 }
