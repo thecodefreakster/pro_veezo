@@ -67,6 +67,7 @@ body {
 }
 
 .main-area {
+  height: 100%;
   padding-top: 60px;
   display: flex;
   flex-direction: column;
@@ -384,4 +385,24 @@ footer {
   justify-content: center;
   gap: 20px;
   margin-top: 5px;
+}
+
+.line-title {
+  font-size: 26px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.line-text {
+  margin-top: 12px;
+  font-size: 18px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.line-email {
+  margin-top: 72px;
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
 }
