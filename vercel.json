@@ -2,6 +2,8 @@
     "rewrites": [
         { "source": "/api/(.*)", "destination": "/api/$1" },
         { "source": "/v_", "destination": "/video.html" },
-        { "source": "/advertise", "destination": "/advertise.html" }
+        { "source": "/advertise", "destination": "/advertise.html" },
+        { "source": "/termsOfService", "destination": "/termsOfService.html" },
+        { "source": "/reportAbuse", "destination": "/reportAbuse.html" }
     ]
 }
