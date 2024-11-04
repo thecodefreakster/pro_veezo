@@ -293,7 +293,7 @@ img {
     margin-top: 0;
   }
 
-  v-player {
+  .v-player {
     width: 100%;
     height: 70vh;
     justify-content: center;
