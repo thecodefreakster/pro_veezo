@@ -300,6 +300,7 @@ img {
     align-items: center;
     display: flex;
     border-radius: 0 !important;
+    object-fit: fill;
   }
 }
 
@@ -332,6 +333,7 @@ img {
     align-items: center;
     display: flex;
     border-radius: 0 !important;
+    object-fit: fill;
   }
 }
 
@@ -379,7 +381,7 @@ footer {
 
 .c-video {
   max-width: 100%;
-  margin-top: 30px;
+  /* margin-top: 30px; */
   margin-bottom: 30px;
   width: 100%;
   display: flex;
@@ -398,6 +400,7 @@ footer {
 .v-player {
   border-radius: 15px;
   max-height: calc(80vh - 64px);
+  object-fit: fill;
 }
 
 .ads {
