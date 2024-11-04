@@ -323,6 +323,14 @@ img {
   .c-video {
     margin-top: 0;
   }
+
+  .v-player {
+    width: 100%;
+    height: 70vh;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+  }
 }
 
 .video {
