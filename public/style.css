@@ -304,6 +304,10 @@ img {
   .video {
     margin-top: 32px;
   }
+
+  #videoPlayer {
+    margin: 0 0 16px 0;
+  }
 }
 
 .video {
