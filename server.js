@@ -33,7 +33,8 @@ app.use(cors(corsOptions));
 
 // Multer setup
 const upload = multer({
-  storage: multer.memoryStorage(), // Keep files in memory temporarily
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 // Helper to generate random IDs
