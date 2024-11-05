@@ -54,6 +54,13 @@ async function upload() {
         return;
     }
 
+    const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
+    if (file.size > maxSizeInBytes) {
+        alert("File size exceeds the 5 MB limit.");
+        resetUI();
+        return;
+    }
+
     // Hide initial UI elements and show uploading UI
     $(".headline, .description, .upload-button").hide();
     $(".headline-uploading, .description-uploading").show();
