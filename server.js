@@ -18,8 +18,9 @@ const storage = new Storage({
 const bucketName = 'veezopro_videos'; // GCS bucket name
 
 app.use(express.json());
-app.use(express.bodyParser());
+// app.use(express.bodyParser());
 // app.use(express.urlencoded({ limit: '100mb', extended: true }));
+app.use(express.json({ limit: '5mb' }));
 
 const corsOptions = {
   origin: corsConfig[0].origin,
