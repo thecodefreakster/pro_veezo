@@ -13,12 +13,22 @@ const storage = new Storage({
 const bucketName = 'veezopro_videos';
 
 // Set up multer to use memory storage
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer(
+    { storage: multer.memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 } 
+    });
 
 export default function handler(req, res) {
     if (req.method === 'POST') {
         upload.single('file')(req, res, async function (err) {
-            if (err) return res.status(500).json({ error: err.message });
+            // if (err) return res.status(500).json({ error: err.message });
+            if (err) {
+                // Multer error handling
+                if (err.code === 'LIMIT_FILE_SIZE') {
+                    return res.status(413).json({ error: 'File size exceeds 5MB limit' });
+                }
+                return res.status(500).json({ error: err.message });
+            }
 
             if (!req.file) {
                 return res.status(400).json({ error: 'No file uploaded' });

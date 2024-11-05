@@ -18,9 +18,8 @@ const storage = new Storage({
 const bucketName = 'veezopro_videos'; // GCS bucket name
 
 app.use(express.json());
-// app.use(express.bodyParser());
+app.use(express.bodyParser());
 // app.use(express.urlencoded({ limit: '100mb', extended: true }));
-app.use(express.json({ limit: '5mb' }));
 
 const corsOptions = {
   origin: corsConfig[0].origin,
@@ -35,7 +34,7 @@ app.use(cors(corsOptions));
 // Multer setup
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }
+  limits: { fileSize: 250 * 1024 * 1024 }
 });
 
 // Helper to generate random IDs
