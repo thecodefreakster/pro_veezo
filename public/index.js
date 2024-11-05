@@ -54,9 +54,9 @@ async function upload() {
         return;
     }
 
-    const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
+    const maxSizeInBytes = 250 * 1024 * 1024; // 5 MB
     if (file.size > maxSizeInBytes) {
-        alert("File size exceeds the 5 MB limit.");
+        alert("File size exceeds the 250 MB limit.");
         resetUI();
         return;
     }
