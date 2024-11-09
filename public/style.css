@@ -295,7 +295,6 @@ img {
 
   .v-player {
     width: 100%;
-    min-width: 468px !important;
     max-height: 90vh !important;
     justify-content: center;
     align-items: center;
