@@ -445,3 +445,10 @@ footer {
   padding: 0 16px;
   margin-top: 64px;
 }
+
+iframe {
+  width: 100% !important;
+  height: 60px !important;
+  max-width: 100%;
+  border: none;
+}
