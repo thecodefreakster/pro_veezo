@@ -447,7 +447,6 @@ footer {
 }
 
 iframe {
-  width: 100% !important;
   height: 60px !important;
   max-width: 100%;
   border: none;
